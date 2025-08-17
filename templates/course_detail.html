@@ -1,0 +1,875 @@
+{% extends 'base.html' %}
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% endblock head %}
+
+{% block title %}Tlias智能学习辅助系统 - {{ course.name }}{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const courseId = {{ course.id }};
+        const favoriteBtn = document.getElementById('favorite-btn');
+        const favoriteText = document.getElementById('favorite-text');
+        const favoriteIcon = favoriteBtn.querySelector('i');
+
+        // 检查课程是否已收藏
+        function checkFavoriteStatus() {
+            fetch(`/course/is_favorite/${courseId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.is_favorite) {
+                        // 已收藏状态
+                        favoriteBtn.classList.remove('btn-outline-primary');
+                        favoriteBtn.classList.add('btn-danger', 'hover:bg-danger/90');
+                        favoriteIcon.classList.remove('far');
+                        favoriteIcon.classList.add('fas');
+                        favoriteText.textContent = '已收藏';
+                    } else {
+                        // 未收藏状态
+                        favoriteBtn.classList.remove('btn-danger', 'hover:bg-danger/90');
+                        favoriteBtn.classList.add('btn-outline-primary', 'hover:bg-primary/10');
+                        favoriteIcon.classList.remove('fas');
+                        favoriteIcon.classList.add('far');
+                        favoriteText.textContent = '收藏课程';
+                    }
+                })
+                .catch(error => {
+                    console.error('检查收藏状态失败:', error);
+                });
+        }
+
+        // 收藏/取消收藏课程
+        favoriteBtn.addEventListener('click', function() {
+            const isFavorite = favoriteIcon.classList.contains('fas');
+            const url = isFavorite ? `/course/unfavorite/${courseId}` : `/course/favorite/${courseId}`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 更新按钮状态
+                    if (isFavorite) {
+                        favoriteBtn.classList.remove('btn-danger', 'hover:bg-danger/90');
+                        favoriteBtn.classList.add('btn-outline-primary', 'hover:bg-primary/10');
+                        favoriteIcon.classList.remove('fas');
+                        favoriteIcon.classList.add('far');
+                        favoriteText.textContent = '收藏课程';
+                        showNotification('取消收藏成功', 'success');
+                    } else {
+                        favoriteBtn.classList.remove('btn-outline-primary', 'hover:bg-primary/10');
+                        favoriteBtn.classList.add('btn-danger', 'hover:bg-danger/90');
+                        favoriteIcon.classList.remove('far');
+                        favoriteIcon.classList.add('fas');
+                        favoriteText.textContent = '已收藏';
+                        showNotification('收藏成功', 'success');
+                    }
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('操作收藏失败:', error);
+                showNotification('操作失败，请重试', 'error');
+            });
+        });
+
+        // 显示通知
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification position-fixed top-20 right-4 p-3 rounded-lg shadow-lg ${type === 'success' ? 'bg-success text-white' : 'bg-danger text-white'} transform transition-all duration-500 translate-x-full`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // 显示通知
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+
+            // 隐藏通知
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
+            }, 3000);
+        }
+
+        // 初始化主题
+        (function() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (localStorage.getItem('theme') === 'light') {
+                html.classList.remove('dark');
+                if (themeIcon) themeIcon.className = 'bi bi-sun-fill';
+            } else {
+                html.classList.add('dark');
+                if (themeIcon) themeIcon.className = 'bi bi-moon-fill';
+            }
+        })();
+
+        // 初始检查收藏状态
+        checkFavoriteStatus();
+
+        // 资料筛选功能
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const materialItems = document.querySelectorAll('.material-item');
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // 移除所有按钮的active类
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // 为当前点击的按钮添加active类
+                button.classList.add('active');
+                
+                const filterType = button.getAttribute('data-type');
+                
+                // 筛选资料项
+                materialItems.forEach(item => {
+                    if (filterType === 'all' || item.getAttribute('data-type') === filterType) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // 开始学习按钮点击事件
+        document.querySelectorAll('.start-learning-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const moduleId = button.getAttribute('data-module-id');
+                window.location.href = `/module/learn/${moduleId}`;
+            });
+        });
+
+        // 添加学习资料按钮点击事件
+        document.querySelector('.add-material-btn').addEventListener('click', () => {
+            showNotification('资料添加功能即将上线', 'success');
+            // 实际项目中这里应该打开添加资料的模态框或跳转到添加页面
+        });
+
+        // 生成学习计划按钮点击事件
+        document.querySelector('.generate-plan-btn').addEventListener('click', () => {
+            showNotification('学习计划生成中...', 'success');
+            // 实际项目中这里应该调用生成学习计划的API
+        });
+
+        // 评论删除处理
+        function handleCommentDelete(event, commentId) {
+            event.preventDefault();
+            const form = event.target;
+            const url = form.action;
+
+            fetch(url, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // 隐藏模态框并移除评论元素
+                    const modal = bootstrap.Modal.getInstance(document.getElementById(`deleteCommentModal${commentId}`));
+                    modal.hide();
+                    document.getElementById(`comment-${commentId}`).remove();
+                    showNotification('评论删除成功', 'success');
+                } else {
+                    showNotification('删除失败，请重试', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('删除失败，请重试', 'error');
+            });
+            return false;
+        }
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen starry-bg relative overflow-hidden">
+    <!-- 导航条 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-white border-bottom border-white/30 backdrop-blur-md w-100" style="z-index: 1000; position: fixed; top: 0; left: 0; box-shadow: 0 2px 15px rgba(0,0,0,0.5); width: 100%; box-sizing: border-box; height: 64px;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">Tlias学习系统</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">首页</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{{ url_for('create_course') }}">课程</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('update_progress', material_id=materials[0].id) }}">学习进度</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+                            <i class="bi bi-person-circle mr-1"></i> 用户中心
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right bg-dark border border-white/10">
+                            <a class="dropdown-item text-white-custom" href="{{ url_for('profile') }}">个人资料</a>
+                            <a class="dropdown-item text-white-custom" href="{{ url_for('logout') }}">退出登录</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 星星背景 -->
+    <div class="stars"></div>
+    <div class="stars2"></div>
+    <div class="stars3"></div>
+    
+    <!-- 流星效果 -->
+    <div class="shooting-star" style="top: 20%; left: -10%; animation-delay: 0s;"></div>
+    <div class="shooting-star" style="top: 40%; left: -20%; animation-delay: 2s;"></div>
+    <div class="shooting-star" style="top: 60%; left: -5%; animation-delay: 4s;"></div>
+    <div class="shooting-star" style="top: 80%; left: -15%; animation-delay: 6s;"></div>
+    <div class="shooting-star" style="top: 30%; left: -25%; animation-delay: 8s;"></div>
+    
+    <style>
+        /* 增强星空背景样式 */
+        :root {
+            box-sizing: border-box;
+            --primary-gradient: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+        }
+
+        html, body {
+            position: relative;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            font-family: var(--font-sans);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .starry-bg {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #0e4b99 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            transition: background 0.3s ease;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        /* 浅色模式背景 */
+        :root:not(.dark) .starry-bg {
+            background: #ffffff;
+        }
+        
+        /* 渐变背景层 */
+        .starry-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at top, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                        radial-gradient(ellipse at bottom, rgba(147, 51, 234, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .stars, .stars2, .stars3 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background-size: 1000px 1000px;
+        }
+        
+        .stars {
+            background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="100" cy="100" r="2" fill="white" opacity="0.9"/><circle cx="300" cy="300" r="2" fill="white" opacity="0.7"/><circle cx="500" cy="200" r="2" fill="white" opacity="0.8"/><circle cx="700" cy="400" r="2" fill="white" opacity="0.6"/><circle cx="900" cy="150" r="2" fill="white" opacity="0.9"/><circle cx="200" cy="600" r="1.5" fill="white" opacity="0.5"/><circle cx="600" cy="700" r="1.5" fill="white" opacity="0.7"/><circle cx="800" cy="800" r="1.5" fill="white" opacity="0.6"/><circle cx="150" cy="350" r="1.5" fill="white" opacity="0.8"/><circle cx="450" cy="850" r="1.5" fill="white" opacity="0.5"/><circle cx="750" cy="50" r="1.5" fill="white" opacity="0.7"/><circle cx="120" cy="750" r="1.8" fill="white" opacity="0.6"/><circle cx="320" cy="120" r="1.8" fill="white" opacity="0.7"/><circle cx="520" cy="520" r="1.8" fill="white" opacity="0.5"/><circle cx="720" cy="720" r="1.8" fill="white" opacity="0.6"/></svg>') repeat;
+            animation: twinkle 50s linear infinite, twinkleOpacity 3s ease-in-out infinite alternate;
+        }
+        
+        .stars2 {
+            background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="200" cy="500" r="1" fill="white" opacity="0.5"/><circle cx="400" cy="700" r="1" fill="white" opacity="0.6"/><circle cx="600" cy="300" r="1" fill="white" opacity="0.7"/><circle cx="800" cy="600" r="1" fill="white" opacity="0.4"/><circle cx="100" cy="800" r="0.8" fill="white" opacity="0.5"/><circle cx="350" cy="450" r="0.8" fill="white" opacity="0.6"/><circle cx="650" cy="150" r="0.8" fill="white" opacity="0.7"/><circle cx="850" cy="900" r="0.8" fill="white" opacity="0.4"/><circle cx="250" cy="200" r="0.8" fill="white" opacity="0.6"/><circle cx="550" cy="550" r="0.8" fill="white" opacity="0.5"/><circle cx="180" cy="680" r="1.2" fill="white" opacity="0.5"/><circle cx="380" cy="280" r="1.2" fill="white" opacity="0.6"/><circle cx="680" cy="480" r="1.2" fill="white" opacity="0.4"/></svg>') repeat;
+            animation: twinkle 100s linear infinite, twinkleOpacity 4s ease-in-out infinite alternate;
+        }
+        
+        .stars3 {
+            background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="150" cy="800" r="0.5" fill="white" opacity="0.4"/><circle cx="350" cy="100" r="0.5" fill="white" opacity="0.5"/><circle cx="550" cy="900" r="0.5" fill="white" opacity="0.3"/><circle cx="50" cy="400" r="0.5" fill="white" opacity="0.4"/><circle cx="750" cy="200" r="0.5" fill="white" opacity="0.5"/><circle cx="900" cy="700" r="0.5" fill="white" opacity="0.3"/><circle cx="200" cy="50" r="0.5" fill="white" opacity="0.4"/><circle cx="500" cy="650" r="0.5" fill="white" opacity="0.4"/><circle cx="850" cy="350" r="0.5" fill="white" opacity="0.3"/><circle cx="125" cy="125" r="0.7" fill="white" opacity="0.3"/><circle cx="425" cy="825" r="0.7" fill="white" opacity="0.2"/></svg>') repeat;
+            animation: twinkle 150s linear infinite, twinkleOpacity 5s ease-in-out infinite alternate;
+        }
+
+        /* 流星效果 */
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+            animation: shootingStar 3s linear infinite;
+            opacity: 0;
+        }
+
+        .shooting-star::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100px;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+            transform: translateX(-100px);
+        }
+
+        /* 浅色模式隐藏星空 */
+        :root:not(.dark) .stars,
+        :root:not(.dark) .stars2,
+        :root:not(.dark) .stars3,
+        :root:not(.dark) .starry-bg::before {
+            display: none;
+        }
+        
+        @keyframes twinkle {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-1000px); }
+        }
+
+        @keyframes twinkleOpacity {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes shootingStar {
+            0% {
+                opacity: 0;
+                transform: translateX(-100px) translateY(100px);
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(100vw) translateY(-100px);
+            }
+        }
+
+        /* 学习路径样式 */
+        .learning-path {
+    margin: var(--spacing-xl) auto;
+    padding: var(--spacing-lg);
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    width: 100%;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--border-color);
+        }
+        .learning-path:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+        }
+
+        /* 浅色模式学习路径 */
+        :root:not(.dark) .learning-path {
+            background: #f5f5f5;
+            border-color: #e0e0e0;
+        }
+
+        .path-node {
+    position: relative;
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    width: 100%;
+    word-wrap: break-word;
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+}
+
+.custom-card img {
+    max-width: 100%;
+    height: auto;
+}
+
+        /* 浅色模式路径节点 */
+        :root:not(.dark) .path-node {
+            background: #ffffff;
+            border-color: #e0e0e0;
+        }
+        .path-node:hover {
+            transform: translateY(-2px);
+            background: var(--bg-hover);
+            box-shadow: 0 8px 20px var(--shadow-hover);
+            z-index: 10;
+        }
+
+        .path-node:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: calc(-1 * var(--spacing-lg));
+            left: var(--spacing-md);
+            width: 2px;
+            height: var(--spacing-lg);
+            background: var(--primary-purple);
+        }
+
+        .node-number {
+            position: absolute;
+            left: calc(-1 * var(--spacing-sm));
+            top: 50%;
+            transform: translateY(-50%);
+            width: calc(2 * var(--spacing-sm));
+            height: calc(2 * var(--spacing-sm));
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
+        }
+
+        /* 资料筛选控制样式 */
+        .filter-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filter-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: 20px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .filter-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+            background: rgba(30, 30, 30, 0.8);
+        }
+
+        /* 浅色模式文本颜色 */
+        :root:not(.dark) .text-white-custom {
+            color: #333333;
+        }
+        :root:not(.dark) .text-gray-custom {
+            color: #666666;
+        }
+        .filter-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+        /* 面包屑导航样式 */
+        .breadcrumb {
+            background: rgba(30, 30, 30, 0.5);
+            backdrop-filter: blur(8px);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: 12px;
+        }
+
+        /* 进度环样式 */
+        .progress-ring {
+            width: 80px;
+            height: 80px;
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* 星空主题卡片样式 */
+        .custom-card {
+    box-sizing: border-box;
+    max-width: 100%;
+            height: 100%;
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: var(--spacing-md);
+            transition: all 0.3s ease;
+        }
+
+        .custom-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+            background: rgba(30, 30, 30, 0.7);
+        }
+
+        /* 浅色模式自定义卡片 */
+        :root:not(.dark) .custom-card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .custom-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(147, 51, 234, 0.2);
+            border-color: rgba(147, 51, 234, 0.3);
+            background: rgba(30, 30, 30, 0.9);
+        }
+
+        /* 星空主题仪表盘卡片 */
+        .dashboard-card {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+            background: rgba(30, 30, 30, 0.7);
+            z-index: 10;
+        }
+
+        /* 浅色模式卡片样式 */
+        :root:not(.dark) .dashboard-card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .dashboard-card:hover {
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.3);
+            background: rgba(30, 30, 30, 0.9);
+        }
+    </style>
+    
+    <div class="container-fluid relative z-10 py-5 px-4 overflow-x-hidden mt-16" style="box-sizing: border-box; word-wrap: break-word;">
+    <nav aria-label="breadcrumb" class="animate-fade-in-up px-4 py-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">我的学习</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ course.name }}</li>
+        </ol>
+    </nav>
+        <div class="row mb-6 px-4">
+            <div class="col-12 d-flex justify-content-between items-center">
+                <h1 class="text-3xl font-bold text-white-custom bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-0 animate-fade-in-up">{{ course.name }}</h1>
+                <button id="favorite-btn" class="btn btn-outline-primary animate-fade-in-up animate-delay-1">
+                    <i class="far fa-star mr-2"></i><span id="favorite-text">收藏课程</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 课程概览卡片 -->
+        <div class="dashboard-header mb-8 p-6 animate-fade-in-up animate-delay-2">
+            <div class="row justify-content-center gx-5">
+                <div class="col-md-8">
+                    <p class="text-gray-custom mb-4"><strong>创建于:</strong> {{ course.created_at.strftime('%Y-%m-%d') }}</p>
+                    <h2 class="text-2xl font-bold text-white-custom mb-3">课程描述</h2>
+                    <p class="text-gray-custom mb-4">{{ course.description }}</p>
+                    <div class="mb-4">
+                        <span class="badge bg-primary-purple text-white mr-2">{{ course.difficulty }}</span>
+                        <span class="badge bg-primary-blue text-white">{{ course.category }}</span>
+                    </div>
+                    <button class="btn btn-primary-custom btn-lg hover-lift btn-animate">开始学习</button>
+                </div>
+                <div class="col-md-4 mt-4 md:mt-0">
+                    <div class="text-center">
+                        <svg class="progress-ring mx-auto" width="80" height="80">
+                            <circle
+                                class="progress-ring-circle"
+                                stroke="var(--primary-purple)"
+                                stroke-width="8"
+                                fill="transparent"
+                                r="32"
+                                cx="40"
+                                cy="40"
+                                stroke-dasharray="201.06"
+                                stroke-dashoffset="{{ 201.06 * (1 - completion_rate/100) }}"
+                            />
+                            <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" class="text-white-custom text-2xl font-bold">{{ completion_rate|int }}%</text>
+                        </svg>
+                        <p class="text-gray-custom mt-2">课程完成度</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 学习路径 -->
+        <div class="dashboard-card p-4 mb-8 animate-fade-in-up animate-delay-3">
+            <h2 class="text-2xl font-bold text-white-custom mb-4">推荐学习路径</h2>
+            <div class="path-container px-4 mx-auto max-w-100">
+                {% for module in course.modules|sort(attribute='order') %}
+                <div class="path-node animate-fade-in-up" style="animation-delay: {{ 0.5 + loop.index * 0.2 }}s">
+                    <div class="node-number">{{ loop.index }}</div>
+                    <h3 class="text-lg font-medium text-white-custom mb-2">{{ module.name }}</h3>
+                    <p class="text-gray-custom mb-3">{{ module.description }}</p>
+                    <div class="d-flex justify-content-between items-center">
+                        <span class="text-sm text-gray-custom">{{ module.duration }} 分钟</span>
+                        <button class="btn btn-outline-purple btn-sm start-learning-btn hover-lift" data-module-id="{{ module.id }}">开始学习</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 学习资料 -->
+        <div class="mb-8 animate-fade-in-up animate-delay-4">
+            <div class="d-flex justify-content-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-white-custom">学习资料</h2>
+                <button class="btn btn-outline-purple btn-sm add-material-btn">添加学习资料</button>
+            </div>
+
+            <!-- 筛选控制 -->
+            <div class="filter-controls mb-6">
+                <button class="filter-btn active" data-type="all">全部</button>
+                <button class="filter-btn hover-lift" data-type="video">视频</button>
+                <button class="filter-btn hover-lift" data-type="document">文档</button>
+                <button class="filter-btn hover-lift" data-type="quiz">测验</button>
+            </div>
+
+            <!-- 资料列表 -->
+            <div class="row">
+                {% if course.materials %}
+                    {% for material in course.materials %}
+                    <div class="col-md-4 mb-4 material-item" data-type="{{ material.type }}">
+                        <div class="dashboard-card p-4 h-full">
+                            <div class="d-flex justify-content-between items-start mb-3">
+                                <h3 class="text-lg font-medium text-white-custom">{{ material.name }}</h3>
+                                <span class="badge bg-secondary text-white text-xs">{{ material.type }}</span>
+                            </div>
+                            <p class="text-gray-custom text-sm mb-3 line-clamp-2">{{ material.description }}</p>
+                            <div class="d-flex justify-content-between items-center mt-auto pt-3 border-t border-color">
+                                <span class="text-sm text-gray-custom">{{ material.created_at.strftime('%Y-%m-%d') }}</span>
+                                <button class="btn btn-primary-custom btn-sm">查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center py-12">
+                        <div class="mb-4 text-gray-custom text-5xl"><i class="bi bi-file-text"></i></div>
+                        <p class="text-gray-custom text-lg mb-3">暂无学习资料</p>
+                        <button class="btn btn-outline-purple">添加资料</button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dashboard-card p-4 mb-6 animate-fade-in-up animate-delay-2">
+                <div class="card-header">
+                    <h5 class="text-white-custom mb-0">学习进度</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <svg class="progress-ring mx-auto" width="80" height="80">
+                            <circle
+                                class="progress-ring-circle"
+                                stroke="var(--primary-purple)"
+                                stroke-width="8"
+                                fill="transparent"
+                                r="32"
+                                cx="40"
+                                cy="40"
+                                stroke-dasharray="201.06"
+                                stroke-dashoffset="{{ 201.06 * (1 - completion_rate/100) }}"
+                            />
+                            <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" class="text-white-custom text-2xl font-bold">{{ completion_rate|int }}%</text>
+                        </svg>
+                        <p class="text-gray-custom mt-2">课程完成度</p>
+                    </div>
+                    <div class="mt-4 space-y-3">
+                        <div class="d-flex justify-content-between items-center">
+                            <span class="text-gray-custom">资料总数</span>
+                            <span class="text-white-custom">{{ course.materials|length }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between items-center">
+                            <span class="text-gray-custom">已完成</span>
+                            <span class="text-white-custom">{{ course.completed_materials }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between items-center">
+                            <span class="text-gray-custom">上次学习</span>
+                            <span class="text-white-custom">{{ course.last_study_time.strftime('%Y-%m-%d') if course.last_study_time else '未学习' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card animate-fade-in-up animate-delay-3">
+                <div class="card-header">
+                    <h5 class="text-white-custom mb-0">推荐课程</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for rec_course in recommended_courses[:3] %}
+                        <li class="list-group-item">
+                            <a href="{{ url_for('course_detail', course_id=rec_course.id) }}" class="text-white-custom">
+                                {{ rec_course.name }}
+                            </a>
+                            <div class="text-gray-custom small mt-1">{{ rec_course.description|truncate(60) }}</div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 讨论区 -->
+        <div class="dashboard-card p-4 mb-8 animate-fade-in-up animate-delay-5">
+            <h2 class="text-2xl font-bold text-white-custom mb-4"><i class="bi bi-chat-dots"></i> 课程讨论</h2>
+            <div class="mb-4">
+                <h3 class="h5 mb-3">评论 ({{ course.comments|length }})</h3>
+                {% if course.comments %}
+                <div class="list-group mb-4">
+                    {% for comment in course.comments %}
+                    <div class="list-group-item mb-2 rounded shadow-sm" id="comment-{{ comment.id }}" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);">
+                        <div class="d-flex justify-content-between">
+                            <span class="font-bold" style="font-weight: 600;">{{ comment.user.username }}</span>
+                            <small class="text-muted">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                        <p class="mt-2 mb-0 text-light">{{ comment.content }}</p>
+                        {% if current_user.id == comment.user_id or current_user.is_admin %}
+                        <div class="mt-2 text-end">
+                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteCommentModal{{ comment.id }}">
+                                <i class="bi bi-trash"></i> 删除
+                            </button>
+                        </div>
+                        <!-- 删除评论模态框 -->
+                        <div class="modal fade" id="deleteCommentModal{{ comment.id }}" tabindex="-1" aria-labelledby="deleteCommentModalLabel{{ comment.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-danger text-white">
+                                        <h5 class="modal-title" id="deleteCommentModalLabel{{ comment.id }}">确认删除</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        确定要删除这条评论吗？此操作不可撤销。
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                        <form id="deleteCommentForm{{ comment.id }}" action="{{ url_for('delete_course_comment', comment_id=comment.id) }}" method="POST" onsubmit="return handleCommentDelete(event, {{ comment.id }})">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-danger">删除</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info" role="alert">
+                    暂无评论，成为第一个评论的人吧！
+                </div>
+                {% endif %}
+
+                <!-- 添加评论表单 -->
+                <div class="card rounded shadow-sm mt-4" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px);">
+                    <div class="card-header" style="background: rgba(100, 115, 255, 0.2); border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                        <h3 class="h6 mb-0 card-title"><i class="bi bi-reply"></i> 添加评论</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('add_course_comment', course_id=course.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="mb-3">
+                                <label for="commentContent" class="form-label fw-bold">评论内容</label>
+                                <textarea class="form-control" id="commentContent" name="content" rows="4" placeholder="分享你的学习心得..."></textarea>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary hover-lift btn-animate" style="background: rgba(100, 115, 255, 0.8); border: 1px solid rgba(100, 115, 255, 0.3); backdrop-filter: blur(5px);">提交评论</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 课程统计和建议 -->
+        <div class="row justify-content-center mb-8 px-4">
+            <div class="col-md-6 mb-6">
+                <div class="dashboard-card p-6 h-full">
+                    <h2 class="text-xl font-semibold text-white-custom mb-4">课程统计</h2>
+                    <div class="space-y-4">
+                        <div class="d-flex justify-content-between items-center">
+                            <span class="text-gray-custom">资料总数</span>
+                            <span class="text-white-custom font-medium">{{ course.materials|length }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between items-center">
+                            <span class="text-gray-custom">已完成资料</span>
+                            <span class="text-white-custom font-medium">{{ course.completed_materials }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between items-center">
+                            <span class="text-gray-custom">平均学习时长</span>
+                            <span class="text-white-custom font-medium">{{ course.avg_study_time }} 分钟</span>
+                        </div>
+                        <div class="d-flex justify-content-between items-center">
+                            <span class="text-gray-custom">上次学习时间</span>
+                            <span class="text-white-custom font-medium">{{ course.last_study_time.strftime('%Y-%m-%d') if course.last_study_time else '未学习' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-6">
+                <div class="dashboard-card p-6 h-full">
+                    <h2 class="text-xl font-semibold text-white-custom mb-4">学习建议</h2>
+                    <div class="space-y-3">
+                        {% if course.learning_suggestions %}
+                            {% for suggestion in course.learning_suggestions %}
+                            <div class="flex items-start mb-3">
+                                <div class="mr-3 text-primary-purple"><i class="bi bi-lightbulb-fill"></i></div>
+                                <p class="text-gray-custom">{{ suggestion }}</p>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-gray-custom text-center py-4">暂无学习建议</p>
+                        {% endif %}
+                    </div>
+                    <button class="btn btn-outline-purple w-100 mt-4 generate-plan-btn">生成学习计划</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

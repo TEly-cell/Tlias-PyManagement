@@ -1,0 +1,389 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ thread.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .starry-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #0a0a1a;
+        z-index: -1;
+        overflow: hidden;
+    }
+    .star {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        animation: twinkle 2s infinite ease-in-out;
+    }
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+    }
+    
+    /* 星空背景下的文字颜色 */
+    .card {
+        color: #e0e0e0;
+    }
+    .text-white, .text-light {
+        color: #e0e0e0 !important;
+    }
+    .text-muted {
+        color: #b0b0b0 !important;
+    }
+
+    /* 浅色模式样式 */
+    :root:not(.dark) .starry-bg {
+        background: #ffffff !important;
+    }
+    
+    :root:not(.dark) .star {
+        display: none;
+    }
+    
+    :root:not(.dark) .card {
+        color: #333333;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    :root:not(.dark) .card:hover {
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border-color: rgba(100, 115, 255, 0.3);
+    }
+    
+    :root:not(.dark) .card-header {
+        background: rgba(248, 249, 250, 0.9) !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    :root:not(.dark) .text-white,
+    :root:not(.dark) .text-light {
+        color: #000000 !important;
+    }
+    
+    :root:not(.dark) .text-muted {
+        color: #444444 !important;
+    }
+    
+    :root:not(.dark) .btn-primary {
+        background: rgba(100, 115, 255, 0.8);
+        border: 1px solid rgba(100, 115, 255, 0.3);
+        color: #ffffff;
+    }
+    
+    :root:not(.dark) .btn-danger {
+        background: rgba(220, 53, 69, 0.8);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        color: #ffffff;
+    }
+    
+    /* 额外样式 */
+    .text-white { color: #ffffff !important; }
+    .text-light { color: #f0f0f0 !important; }
+    .text-muted { color: #cccccc !important; }
+    .card-title { color: #e0e0e0 !important; }
+    .card-text { color: #c8c8c8 !important; }
+    .card-text strong { color: #e0e0e0 !important; }
+    .form-label { color: #e0e0e0 !important; }
+    .form-control { color: #c8c8c8 !important; }
+    
+    /* 卡片悬浮效果 */
+    .card {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(100, 115, 255, 0.3), 0 0 0 1px rgba(100, 115, 255, 0.1);
+        border-color: rgba(100, 115, 255, 0.4) !important;
+    }
+    
+    .list-group-item {
+        transition: all 0.3s ease;
+    }
+    
+    .list-group-item:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(100, 115, 255, 0.2);
+        border-color: rgba(100, 115, 255, 0.3) !important;
+    }
+    
+    :root:not(.dark) .card-title { color: #000000 !important; }
+    :root:not(.dark) .card-text { color: #000000 !important; }
+    :root:not(.dark) .card-text strong { color: #000000 !important; }
+    :root:not(.dark) .form-label { color: #000000 !important; }
+    :root:not(.dark) .form-control { color: #000000 !important; }
+    
+    :root:not(.dark) .card {
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid rgba(0, 0, 0, 0.125) !important;
+    }
+    
+    :root:not(.dark) .card:hover {
+        background: rgba(255, 255, 255, 0.98) !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(100, 115, 255, 0.2);
+        border-color: rgba(100, 115, 255, 0.4) !important;
+    }
+    
+    :root:not(.dark) .list-group-item:hover {
+        background: rgba(248, 249, 250, 0.8) !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        border-color: rgba(100, 115, 255, 0.3) !important;
+    }
+    
+    :root:not(.dark) .form-control {
+        background: #ffffff !important;
+        border: 1px solid #ced4da !important;
+    }
+    
+    :root:not(.dark) .form-control::placeholder {
+        color: #444444 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="starry-bg" id="starry-bg"></div>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4 rounded shadow-sm" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px);">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background: rgba(100, 115, 255, 0.2); border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                    <h1 class="h4 mb-0 card-title">{{ thread.title }}</h1>
+                    {% if current_user.id == thread.user_id or current_user.is_admin %}
+                    <button type="button" class="btn btn-danger btn-sm" style="background: rgba(220, 53, 69, 0.8); border: 1px solid rgba(220, 53, 69, 0.3);" data-bs-toggle="modal" data-bs-target="#deleteThreadModal">
+                        <i class="bi bi-trash"></i> 删除
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p class="text-light" style="line-height: 1.6;">{{ thread.content | safe }}</p>
+                    </div>
+                    <div class="border-top pt-3" style="border-color: rgba(255, 255, 255, 0.2);">
+                        <small class="text-muted">发布者: {{ thread.user.username }} | 发布时间: {{ thread.created_at.strftime('%Y-%m-%d %H:%M') }} | 最后更新: {{ thread.updated_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 删除主题模态框 -->
+            {% if current_user.id == thread.user_id or current_user.is_admin %}
+            <div class="modal fade" id="deleteThreadModal" tabindex="-1" aria-labelledby="deleteThreadModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="deleteThreadModalLabel">确认删除</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            确定要删除这个讨论主题吗？此操作不可撤销。
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            <form id="deleteThreadForm" action="{{ url_for('delete_thread', thread_id=thread.id) }}" method="POST" onsubmit="return handleThreadDelete(event, {{ thread.id }})" data-redirect-url="{{ url_for('discussions') }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                {{ reply_form.hidden_tag() }}
+                                <button type="submit" class="btn btn-danger">删除</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 回复区域 -->
+            <div class="mb-4">
+                <h2 class="h5 mb-3"><i class="bi bi-chat-dots"></i> 回复 ({{ thread.replies | length }})</h2>
+                {% if thread.replies %}
+                <div class="list-group mb-4">
+                    {% for reply in thread.replies %}
+                    <div class="list-group-item mb-2 rounded shadow-sm" id="reply-{{ reply.id }}" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);">
+                        <div class="d-flex justify-content-between">
+                            <span class="font-bold" style="font-weight: 600;">{{ reply.user.username }}</span>
+                            <small class="text-muted">{{ reply.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                        <p class="mt-2 mb-0 text-light" style="line-height: 1.6;">{{ reply.content | safe }}</p>
+                        {% if current_user.id == reply.user_id or current_user.is_admin %}
+                        <div class="mt-2 text-end">
+                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteReplyModal{{ reply.id }}">
+                                <i class="bi bi-trash"></i> 删除
+                            </button>
+                        </div>
+                        <!-- 删除回复模态框 -->
+                        <div class="modal fade" id="deleteReplyModal{{ reply.id }}" tabindex="-1" aria-labelledby="deleteReplyModalLabel{{ reply.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-danger text-white">
+                                        <h5 class="modal-title" id="deleteReplyModalLabel{{ reply.id }}">确认删除</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        确定要删除这个回复吗？此操作不可撤销。
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                        <form id="deleteReplyForm{{ reply.id }}" action="{{ url_for('delete_reply', reply_id=reply.id) }}" method="POST" onsubmit="return handleReplyDelete(event, {{ reply.id }})">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            {{ reply_form.hidden_tag() }}
+                                            <button type="submit" class="btn btn-danger">删除</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info" role="alert">
+                    暂无回复，成为第一个回复的人吧！
+                </div>
+                {% endif %}
+
+                <!-- 添加回复表单 -->
+                <div class="card rounded shadow-sm mt-4" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px);">
+                    <div class="card-header" style="background: rgba(100, 115, 255, 0.2); border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                        <h3 class="h6 mb-0 card-title"><i class="bi bi-reply"></i> 添加回复</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            {{ reply_form.hidden_tag() }}
+                            <div class="mb-3">
+                                {{ reply_form.content.label(class="form-label fw-bold") }}
+                                {{ reply_form.content(class="form-control", rows=4, placeholder="输入回复内容") }}
+                                {% if reply_form.content.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in reply_form.content.errors %}
+                                    <small>{{ error }}</small><br>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="text-end">
+                                {{ reply_form.submit(class="btn btn-primary", style="background: rgba(100, 115, 255, 0.8); border: 1px solid rgba(100, 115, 255, 0.3); backdrop-filter: blur(5px);") }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-4 rounded shadow-sm mb-4" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px);">
+                <h5 class="card-title mb-3"><i class="bi bi-user-circle text-purple-400 me-2"></i> 作者信息</h5>
+                <p class="card-text"><strong>用户名:</strong> {{ thread.user.username }}</p>
+                <p class="card-text"><strong>发布主题数:</strong> {{ thread.user.discussion_threads | length }}</p>
+            </div>
+
+            <div class="card p-4 rounded shadow-sm" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px);">
+                <h5 class="card-title mb-3"><i class="bi bi-stats text-purple-400 me-2"></i> 主题统计</h5>
+                <p class="card-text"><strong>发布时间:</strong> {{ thread.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                <p class="card-text"><strong>最后更新:</strong> {{ thread.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                <p class="card-text"><strong>回复数:</strong> {{ thread.replies | length }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 创建星空背景
+document.addEventListener('DOMContentLoaded', function() {
+    const starryBg = document.getElementById('starry-bg');
+    const starsCount = 150;
+
+    for (let i = 0; i < starsCount; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+
+        // 随机位置
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+
+        // 随机大小
+        const size = Math.random() * 2 + 1;
+
+        // 随机闪烁延迟
+        const delay = Math.random() * 5;
+
+        // 随机透明度
+        const opacity = Math.random() * 0.5 + 0.1;
+
+        star.style.left = x + '%';
+        star.style.top = y + '%';
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+        star.style.opacity = opacity;
+        star.style.animationDelay = delay + 's';
+
+        starryBg.appendChild(star);
+    }
+});
+
+function handleThreadDelete(event, threadId) {
+    event.preventDefault();
+    const form = event.target;
+    const url = form.action;
+    const redirectUrl = form.dataset.redirectUrl;
+
+    fetch(url, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.href = redirectUrl;
+        } else {
+            alert('删除失败，请重试');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('删除失败，请重试');
+    });
+    return false;
+}
+
+function handleReplyDelete(event, replyId) {
+    event.preventDefault();
+    const form = event.target;
+    const url = form.action;
+
+    fetch(url, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        if (response.ok) {
+            // 隐藏模态框并移除回复元素
+            const modal = bootstrap.Modal.getInstance(document.getElementById(`deleteReplyModal${replyId}`));
+            modal.hide();
+            document.getElementById(`reply-${replyId}`).remove();
+        } else {
+            alert('删除失败，请重试');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('删除失败，请重试');
+    });
+    return false;
+}
+</script>
+{% endblock %}

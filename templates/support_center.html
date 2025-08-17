@@ -1,0 +1,355 @@
+{% extends 'base.html' %}
+
+{% block title %}客服中心{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        /* 浅色模式变量 */
+        --light-bg: #f8fafc;
+        --light-card-bg: rgba(255, 255, 255, 0.95);
+        --light-text-primary: #000000;
+        --light-text-secondary: #6b7280;
+        --light-border: rgba(229, 231, 235, 0.8);
+        --light-border-hover: rgba(209, 213, 219, 0.9);
+        --light-shadow: rgba(0, 0, 0, 0.1);
+        --light-chat-bg: rgba(248, 250, 252, 0.8);
+        --light-form-bg: rgba(255, 255, 255, 0.9);
+        
+        /* 深色模式变量 */
+        --dark-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        --dark-card-bg: rgba(255, 255, 255, 0.1);
+        --dark-text-primary: #ffffff;
+        --dark-text-secondary: rgba(255, 255, 255, 0.9);
+        --dark-border: rgba(255, 255, 255, 0.2);
+        --dark-border-hover: rgba(255, 255, 255, 0.3);
+        --dark-shadow: rgba(0, 0, 0, 0.3);
+        --dark-chat-bg: rgba(255, 255, 255, 0.05);
+        --dark-form-bg: rgba(255, 255, 255, 0.1);
+        
+        /* 默认使用深色模式 */
+        --bg-color: var(--dark-bg);
+        --card-bg: var(--dark-card-bg);
+        --text-primary: var(--dark-text-primary);
+        --text-secondary: var(--dark-text-secondary);
+        --border-color: var(--dark-border);
+        --border-hover: var(--dark-border-hover);
+        --shadow-color: var(--dark-shadow);
+        --chat-bg: var(--dark-chat-bg);
+        --form-bg: var(--dark-form-bg);
+    }
+
+    /* 深色模式 */
+    .dark {
+        --bg-color: var(--dark-bg);
+        --card-bg: var(--dark-card-bg);
+        --text-primary: var(--dark-text-primary);
+        --text-secondary: var(--dark-text-secondary);
+        --border-color: var(--dark-border);
+        --border-hover: var(--dark-border-hover);
+        --shadow-color: var(--dark-shadow);
+        --chat-bg: var(--dark-chat-bg);
+        --form-bg: var(--dark-form-bg);
+    }
+
+    /* 浅色模式 */
+    :root:not(.dark) {
+        --bg-color: var(--light-bg);
+        --card-bg: var(--light-card-bg);
+        --text-primary: var(--light-text-primary);
+        --text-secondary: var(--light-text-secondary);
+        --border-color: var(--light-border);
+        --border-hover: var(--light-border-hover);
+        --shadow-color: var(--light-shadow);
+        --chat-bg: var(--light-chat-bg);
+        --form-bg: var(--light-form-bg);
+    }
+
+    body {
+        background: var(--bg-color);
+        transition: background 0.3s ease;
+    }
+
+    .starry-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--bg-color);
+        z-index: -1;
+        overflow: hidden;
+    }
+    
+    :root:not(.dark) .starry-bg {
+        background: var(--light-bg);
+    }
+
+    .star {
+        position: absolute;
+        background: var(--text-primary);
+        border-radius: 50%;
+        animation: twinkle 2s infinite alternate;
+    }
+    
+    :root:not(.dark) .star {
+        background: #000000;
+    }
+
+    @keyframes twinkle {
+        0% { opacity: 0.3; }
+        100% { opacity: 1; }
+    }
+
+    .support-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px var(--shadow-color);
+        transition: all 0.3s ease;
+    }
+    .support-card:hover {
+        border-color: var(--border-hover);
+    }
+    .support-card .card-header {
+        background: var(--card-bg);
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+    .support-card .card-body {
+        color: var(--text-secondary);
+    }
+    .chat-container {
+        background: var(--chat-bg) !important;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+    }
+    .form-control {
+        background: var(--form-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+    .form-control::placeholder {
+        color: var(--text-secondary);
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 25px;
+        color: white;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+    .message {
+        color: var(--text-primary);
+    }
+    .message-time {
+        color: var(--text-secondary);
+    }
+    .text-gray-600 {
+        color: var(--text-secondary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="starry-bg" id="starry-bg"></div>
+<div class="container-fluid px-0 mt-5 mb-5">
+    <div class="container">
+        <div class="row">
+            <!-- 左侧常见问题 -->
+            <div class="col-md-3 mb-4 md:mb-0">
+                <div class="card support-card h-100 sticky-top" style="top: 20px;">
+                    <div class="card-header font-bold">
+                        <h3>常见问题</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion" id="faqAccordion">
+                            {% for faq in faqs %}
+                            <div class="card mb-2">
+                                <div class="card-header p-2" id="heading{{ loop.index }}">
+                                    <h5 class="mb-0">
+                                        <button class="btn btn-link text-left w-100 p-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+                                            {{ faq.question }}
+                                        </button>
+                                    </h5>
+                                </div>
+                                <div id="collapse{{ loop.index }}" class="collapse" aria-labelledby="heading{{ loop.index }}" data-parent="#faqAccordion">
+                                    <div class="card-body p-2">
+                                        {{ faq.answer }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧聊天界面 -->
+            <div class="col-md-9">
+                <div class="card support-card">
+                    <div class="card-header font-bold text-center">
+                        <h2>客服中心</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4 text-center">
+                            <p class="text-gray-600">您好！我是智能客服助手，有什么可以帮到您的吗？</p>
+                        </div>
+
+                        <!-- AI 聊天界面 -->
+                        <div class="chat-container border rounded-lg p-4 mb-4" style="height: 500px; overflow-y: auto;">
+                            <div id="chat-messages" class="space-y-4">
+                                <!-- 系统消息 -->
+                                <div class="message system-message bg-blue-morandi-light p-3 rounded-lg rounded-tl-none border-l-4 border-blue-morandi">
+                                    <div class="message-content">
+                                        <img src="https://via.placeholder.com/40" alt="系统" class="message-avatar">
+                                        <div class="message-text">
+                                            <p>欢迎使用客服中心！请输入您的问题，我会尽力为您解答。</p>
+                                            <div class="message-time">系统 · 刚刚</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 输入框 -->
+                        <form id="chat-form" class="d-flex mt-3">
+                            <input type="text" id="user-message" class="form-control flex-grow mr-2 py-3" placeholder="输入您的问题..." required style="font-size: 16px;">
+                            <button type="submit" class="btn btn-primary py-3 px-5" style="font-size: 16px;">发送</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 获取当前用户头像URL
+    const userAvatarUrl = "{{ url_for('static', filename='avatars/' + current_user.avatar) if current_user.is_authenticated and current_user.avatar else url_for('static', filename='avatars/default.png') }}";
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatForm = document.getElementById('chat-form');
+        const userMessage = document.getElementById('user-message');
+        const chatMessages = document.getElementById('chat-messages');
+
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // 获取用户输入
+            const message = userMessage.value.trim();
+            if (!message) return;
+
+            // 显示用户消息
+            const userMessageElement = document.createElement('div');
+            userMessageElement.className = 'message user-message bg-gray-morandi-light p-3 rounded-lg rounded-tr-none border-r-4 border-gray-morandi';
+            const now = new Date();
+            const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            userMessageElement.innerHTML = `
+                <div class="message-content justify-content-end">
+                    <div class="message-text text-right">
+                        <p>${message}</p>
+                        <div class="message-time">我 · ${timeString}</div>
+                    </div>
+                    <img src="" + userAvatarUrl + "" alt="用户" class="message-avatar ml-2">
+                </div>
+            `;
+            chatMessages.appendChild(userMessageElement);
+
+            // 清空输入框
+            userMessage.value = '';
+
+            // 滚动到底部
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // 模拟AI回复
+            setTimeout(function() {
+                fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // 显示AI回复
+                    const aiMessageElement = document.createElement('div');
+                    aiMessageElement.className = 'message ai-message bg-blue-morandi-light p-3 rounded-lg rounded-tl-none border-l-4 border-blue-morandi';
+                    const now = new Date();
+                    const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                    aiMessageElement.innerHTML = `
+                        <div class="message-content">
+                            <img src="https://via.placeholder.com/40" alt="AI助手" class="message-avatar">
+                            <div class="message-text">
+                                <p>${data.response}</p>
+                                <div class="message-time">AI助手 · ${timeString}</div>
+                            </div>
+                        </div>
+                    `;
+                    chatMessages.appendChild(aiMessageElement);
+
+                    // 滚动到底部
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const errorMessageElement = document.createElement('div');
+                    errorMessageElement.className = 'message error-message bg-red-morandi-light p-3 rounded-lg rounded-tl-none border-l-4 border-red-morandi';
+                    const now = new Date();
+                    const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                    errorMessageElement.innerHTML = `
+                        <div class="message-content">
+                            <img src="https://via.placeholder.com/40" alt="系统" class="message-avatar">
+                            <div class="message-text">
+                                <p>抱歉，暂时无法回答您的问题，请稍后再试。</p>
+                                <div class="message-time">系统 · ${timeString}</div>
+                            </div>
+                        </div>
+                    `;
+                    chatMessages.appendChild(errorMessageElement);
+
+                    // 滚动到底部
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                });
+            }, 500);
+        });
+    });
+    // 创建星空背景
+    document.addEventListener('DOMContentLoaded', function() {
+        const starryBg = document.getElementById('starry-bg');
+        const starsCount = 150;
+
+        for (let i = 0; i < starsCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+
+            // 随机位置
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+
+            // 随机大小
+            const size = Math.random() * 2 + 1;
+
+            // 随机闪烁延迟
+            const delay = Math.random() * 5;
+
+            // 随机透明度
+            const opacity = Math.random() * 0.5 + 0.1;
+
+            star.style.left = x + '%';
+            star.style.top = y + '%';
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            star.style.opacity = opacity;
+            star.style.animationDelay = delay + 's';
+
+            starryBg.appendChild(star);
+        }
+    });
+</script>
+{% endblock %}

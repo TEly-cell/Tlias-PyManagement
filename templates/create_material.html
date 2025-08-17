@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Tlias智能学习辅助系统 - 添加学习资料{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 动画定义 */
+    .animate-fade-in-up {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-delay-1 { animation-delay: 0.2s; }
+    .animate-delay-2 { animation-delay: 0.4s; }
+    .animate-delay-3 { animation-delay: 0.6s; }
+    .animate-delay-4 { animation-delay: 0.8s; }
+    .animate-delay-5 { animation-delay: 1.0s; }
+    .animate-delay-6 { animation-delay: 1.2s; }
+    .animate-delay-7 { animation-delay: 1.4s; }
+    .animate-delay-8 { animation-delay: 1.6s; }
+    .animate-delay-9 { animation-delay: 1.8s; }
+    .animate-delay-10 { animation-delay: 2.0s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card animate-fade-in-up">
+            <div class="card-header animate-fade-in-up animate-delay-1">为课程添加学习资料: {{ course.name }}</div>
+            <div class="card-body">
+                <form method="POST" action="" enctype="multipart/form-data" novalidate>
+                    {{ form.hidden_tag() }}
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        {% for category, message in messages %}
+                          <div class="alert alert-{{ category }} animate-fade-in-up animate-delay-2" role="alert">{{ message }}</div>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}
+                    <!-- 文件上传字段 -->
+
+                    <div class="mb-3 animate-fade-in-up animate-delay-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control") }}
+                        {% if form.title.errors %}
+                            <div class="text-danger">{{ form.title.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 animate-fade-in-up animate-delay-4">
+                        {{ form.url.label(class="form-label") }}
+                        {{ form.url(class="form-control") }}
+                        {% if form.url.errors %}
+                            <div class="text-danger">{{ form.url.errors[0] }}</div>
+                        {% endif %}
+                        <div class="form-text">输入视频或其他资源的超链接地址</div>
+                    </div>
+                    <div class="mb-3 animate-fade-in-up animate-delay-5">
+                        {{ form.content.label(class="form-label") }}
+                        {{ form.content(class="form-control", rows=8) }}
+                        {% if form.content.errors %}
+                            <div class="text-danger">{{ form.content.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 animate-fade-in-up animate-delay-6">
+                        {{ form.type.label(class="form-label") }}
+                        {{ form.type(class="form-select") }}
+                        {% if form.type.errors %}
+                            <div class="text-danger">{{ form.type.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 animate-fade-in-up animate-delay-7">
+                        {{ form.duration.label(class="form-label") }}
+                        {{ form.duration(class="form-control") }}
+                        {% if form.duration.errors %}
+                            <div class="text-danger">{{ form.duration.errors[0] }}</div>
+                        {% endif %}
+                        <div class="form-text">视频或音频资料的时长(分钟)</div>
+                    </div>
+                    <div class="mb-3 animate-fade-in-up animate-delay-8">
+                        {{ form.difficulty.label(class="form-label") }}
+                        {{ form.difficulty(class="form-select") }}
+                        {% if form.difficulty.errors %}
+                            <div class="text-danger">{{ form.difficulty.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 animate-fade-in-up animate-delay-9">
+                        {{ form.tags.label(class="form-label") }}
+                        {{ form.tags(class="form-control") }}
+                        {% if form.tags.errors %}
+                            <div class="text-danger">{{ form.tags.errors[0] }}</div>
+                        {% endif %}
+                        <div class="form-text">用逗号分隔多个标签，例如: 编程,Python,基础</div>
+                    </div>
+                    <div class="mb-3 animate-fade-in-up animate-delay-10">
+                        <label for="file_upload" class="form-label">上传文件</label>
+                        <input type="file" class="form-control" id="file_upload" name="file_upload">
+                        <div class="form-text">支持上传文档、图片、视频等文件</div>
+                    </div>
+                    <div class="d-grid gap-2 animate-fade-in-up animate-delay-10">
+                        {{ form.submit(class="btn btn-primary", onclick="this.form.submit(); setTimeout(() => {this.disabled=true;this.innerHTML='提交中...';}, 10);") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

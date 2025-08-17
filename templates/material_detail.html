@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+
+{% block title %}Tlias智能学习辅助系统 - {{ material.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen starry-bg relative overflow-hidden">
+    <!-- 星星背景 -->
+    <div class="stars"></div>
+    <div class="stars2"></div>
+    <div class="stars3"></div>
+    
+    <style>
+        :root {
+            --bg-primary: rgba(255, 255, 255, 0.05);
+            --bg-hover: rgba(255, 255, 255, 0.08);
+            --bg-secondary: rgba(255, 255, 255, 0.03);
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --accent-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-hover: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        
+        :root:not(.dark) {
+            --bg-primary: rgba(255, 255, 255, 0.9);
+            --bg-hover: rgba(255, 255, 255, 0.95);
+            --bg-secondary: rgba(255, 255, 255, 0.85);
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        :root:not(.dark) .stars,
+        :root:not(.dark) .stars2,
+        :root:not(.dark) .stars3 {
+            display: none !important;
+        }
+        
+        .starry-bg {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        :root:not(.dark) .starry-bg {
+            background: #ffffff !important;
+        }
+        
+        .stars, .stars2, .stars3 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            right: 0;
+            bottom: 0;
+        }
+        
+        .stars {
+            background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="50" cy="50" r="2" fill="white" opacity="0.8"/><circle cx="150" cy="150" r="1.5" fill="white" opacity="0.6"/><circle cx="250" cy="100" r="1.8" fill="white" opacity="0.7"/><circle cx="350" cy="200" r="1.2" fill="white" opacity="0.5"/><circle cx="450" cy="50" r="2.2" fill="white" opacity="0.9"/><circle cx="550" cy="300" r="1.4" fill="white" opacity="0.6"/><circle cx="650" cy="150" r="1.6" fill="white" opacity="0.7"/><circle cx="750" cy="250" r="1.1" fill="white" opacity="0.5"/><circle cx="850" cy="100" r="1.9" fill="white" opacity="0.8"/><circle cx="100" cy="400" r="1.3" fill="white" opacity="0.6"/><circle cx="200" cy="500" r="1.7" fill="white" opacity="0.7"/><circle cx="300" cy="350" r="1.1" fill="white" opacity="0.5"/><circle cx="400" cy="450" r="2" fill="white" opacity="0.9"/><circle cx="500" cy="400" r="1.4" fill="white" opacity="0.6"/><circle cx="600" cy="550" r="1.5" fill="white" opacity="0.7"/><circle cx="700" cy="350" r="1.2" fill="white" opacity="0.5"/><circle cx="800" cy="500" r="1.8" fill="white" opacity="0.8"/><circle cx="900" cy="400" r="1.3" fill="white" opacity="0.6"/></svg>') repeat;
+            background-size: 1000px 1000px;
+            animation: twinkle 50s linear infinite;
+        }
+        
+        .stars2 {
+            background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="100" cy="200" r="1" fill="white" opacity="0.4"/><circle cx="300" cy="400" r="0.8" fill="white" opacity="0.5"/><circle cx="500" cy="150" r="0.9" fill="white" opacity="0.6"/><circle cx="700" cy="350" r="0.7" fill="white" opacity="0.3"/><circle cx="200" cy="600" r="1.1" fill="white" opacity="0.4"/><circle cx="400" cy="700" r="0.8" fill="white" opacity="0.5"/><circle cx="600" cy="250" r="0.9" fill="white" opacity="0.6"/><circle cx="800" cy="550" r="0.7" fill="white" opacity="0.3"/><circle cx="150" cy="800" r="1" fill="white" opacity="0.4"/><circle cx="350" cy="900" r="0.8" fill="white" opacity="0.5"/></svg>') repeat;
+            background-size: 1000px 1000px;
+            animation: twinkle 100s linear infinite;
+        }
+        
+        .stars3 {
+            background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="75" cy="800" r="0.6" fill="white" opacity="0.3"/><circle cx="175" cy="100" r="0.5" fill="white" opacity="0.4"/><circle cx="275" cy="900" r="0.4" fill="white" opacity="0.2"/><circle cx="375" cy="300" r="0.6" fill="white" opacity="0.3"/><circle cx="475" cy="700" r="0.5" fill="white" opacity="0.4"/><circle cx="575" cy="200" r="0.4" fill="white" opacity="0.2"/></svg>') repeat;
+            background-size: 1000px 1000px;
+            animation: twinkle 150s linear infinite;
+        }
+        
+        @keyframes twinkle {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-1000px); }
+        }
+        
+        .dashboard-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px var(--shadow-color);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px var(--shadow-color);
+            background: var(--bg-hover);
+        }
+        
+        .card-header {
+            background: var(--bg-secondary) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            border-radius: 16px 16px 0 0 !important;
+        }
+        
+        .card-footer {
+            background: var(--bg-secondary) !important;
+            border-top: 1px solid var(--border-color) !important;
+            border-radius: 0 0 16px 16px !important;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--text-secondary) !important;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: var(--text-primary) !important;
+        }
+        
+        .breadcrumb-item.active {
+            color: var(--text-primary) !important;
+        }
+        
+        .text-white-custom {
+            color: var(--text-primary) !important;
+        }
+        
+        .text-gray-custom {
+            color: var(--text-secondary) !important;
+        }
+        
+        .btn-primary-custom {
+            background: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            background: var(--accent-hover);
+            color: white;
+        }
+        
+        .badge-custom {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .embed-responsive {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: var(--accent-color);
+        }
+        
+        .list-group-item {
+            background: transparent !important;
+            border: none !important;
+        }
+        
+        .content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .content h1, .content h2, .content h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .content p {
+            margin-bottom: 1rem;
+        }
+    </style>
+    
+    <button class="theme-toggle" onclick="toggleThemeDirect()" style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: var(--accent-color); border: none; border-radius: 50%; width: 50px; height: 50px; color: white; cursor: pointer; box-shadow: 0 4px 12px var(--shadow-color); transition: all 0.3s ease;" title="切换主题">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+    
+    <div class="container relative z-10 mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <nav aria-label="breadcrumb" class="animate-fade-in-up">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">我的学习</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('course_detail', course_id=course.id) }}">{{ course.name }}</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ material.title }}</li>
+                    </ol>
+                </nav>
+
+                <div class="dashboard-card mt-3 animate-fade-in-up animate-delay-1">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="text-white-custom">{{ material.title }}</h3>
+                            <span class="badge badge-custom">{{ material.type }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                    {% if material.type == 'video' %}
+                    <div class="embed-responsive embed-responsive-16by9 mb-4">
+                        {% if material.url %}
+                        <video class="embed-responsive-item" controls>
+                            <source src="{{ material.url }}" type="video/mp4">
+                            您的浏览器不支持视频播放
+                        </video>
+                        {% else %}
+                        <video class="embed-responsive-item" controls>
+                            <source src="#" type="video/mp4">
+                            您的浏览器不支持视频播放
+                        </video>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if material.url %}
+                    <div class="mb-4">
+                        <a href="{{ material.url }}" target="_blank" class="btn btn-primary">
+                            <i class="bi bi-external-link"></i> 访问原始链接
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div class="content">
+                        {{ material.content|safe }}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <span class="badge badge-custom me-2">难度: {{ material.difficulty }}级</span>
+                            {% if material.duration %}
+                            <span class="badge badge-custom me-2">时长: {{ material.duration }}分钟</span>
+                            {% endif %}
+                            {% if material.tags %}
+                            {% for tag in material.tags.split(',') %}
+                            <span class="badge badge-custom me-1">{{ tag.strip() }}</span>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                        <a href="{{ url_for('update_progress', material_id=material.id) }}" class="btn btn-primary-custom btn-sm">更新学习进度</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="dashboard-card animate-fade-in-up animate-delay-2">
+                <div class="card-header">
+                    <h5 class="text-white-custom mb-0">学习进度</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-white-custom">完成率</span>
+                            <span class="text-white-custom">{{ (progress.completion_rate * 100)|int }}%</span>
+                        </div>
+                        <div class="progress" style="background: rgba(255, 255, 255, 0.1);">
+                            <div class="progress-bar" role="progressbar" style="width: {{ progress.completion_rate * 100 }}%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" aria-valuenow="{{ progress.completion_rate * 100 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <p class="text-gray-custom">状态: <span class="badge" style="background: {{ 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)' if progress.completed else 'linear-gradient(135deg, #ed8936 0%, #dd6b20 100%)' }}">{{ '已完成' if progress.completed else '未完成' }}</span></p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="text-gray-custom">已花费时间: <span class="badge badge-custom">{{ progress.time_spent }}分钟</span></p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="text-gray-custom">最后访问: {{ progress.last_accessed.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card mt-4 animate-fade-in-up animate-delay-3">
+                <div class="card-header">
+                    <h5 class="text-white-custom mb-0">相关推荐</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush" style="background: transparent;">
+                        <li class="list-group-item" style="background: transparent; border: none; padding: 0;">
+                            <a href="{{ url_for('recommendations') }}" class="btn btn-primary-custom btn-sm">查看更多推荐资料</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+    <script>
+        // 主题切换功能
+        function toggleThemeDirect() {
+            const html = document.documentElement;
+            const isDark = html.classList.contains('dark');
+            
+            if (isDark) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-sun-fill';
+            }
+        }
+        
+        // 初始化主题
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const html = document.documentElement;
+            
+            if (savedTheme === 'dark') {
+                html.classList.add('dark');
+                document.getElementById('theme-icon').className = 'bi bi-sun-fill';
+            } else {
+                html.classList.remove('dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        }
+        
+        // 页面加载时初始化主题
+        document.addEventListener('DOMContentLoaded', initTheme);
+    </script>
+{% endblock %}

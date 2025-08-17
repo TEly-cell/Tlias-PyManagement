@@ -1,0 +1,890 @@
+/* 自定义样式 */
+/* 浅色模式变量定义 */
+:root {
+    --morandi-primary: #9ca9b3; /* 主色调 - 蓝灰色 */
+    --morandi-primary-dark: #88949e; /* 主色调深色 */
+    --morandi-secondary: #c9b8b0; /* 次要色 - 灰棕色 */
+    --morandi-info: #a3b1c6; /* 信息色 - 灰蓝色 */
+    --morandi-success: #b0c9b8; /* 成功色 - 灰绿色 */
+    --morandi-danger: #d8b0b0; /* 危险色 - 灰红色 */
+    --morandi-danger-dark: #c99a9a; /* 危险色深色 */
+    --morandi-gray: #e0e0e0; /* 灰色 */
+    --morandi-light: #ffffff; /* 纯白背景 */
+    --morandi-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); /* 星空背景 */
+    --text-primary: #000000; /* 主要文本色 - 纯黑色 */
+    --text-secondary: #374151; /* 次要文本色 - 深灰色 */
+    --text-muted: #6b7280; /* 淡化文本色 - 中灰色 */
+    --text-light: #9ca3af; /* 浅色文本 - 浅灰色 */
+    --text-white: #000000; /* 白色文本 - 在浅色模式下使用黑色 */
+    --card-bg: #ffffff; /* 纯白卡片背景 */
+    --nav-bg: #ffffff; /* 纯白导航栏背景 */
+    --border-color: #d1d5db; /* 浅灰色边框 */
+    --shadow-color: rgba(0, 0, 0, 0.1); /* 柔和阴影 */
+    
+    /* 间距变量 */
+    --spacing-xs: 0.5rem; /* 8px */
+    --spacing-sm: 1rem; /* 16px */
+    --spacing-md: 1.5rem; /* 24px */
+    --spacing-lg: 2rem; /* 32px */
+    --spacing-xl: 3rem; /* 48px */
+}
+
+/* 深色模式变量定义 */
+:root.dark {
+    --morandi-primary: #a8b8c2; /* 主色调 - 灰蓝 (更亮) */
+    --morandi-primary-dark: #9aa8b1; /* 主色调深色 */
+    --morandi-secondary: #c0afa7; /* 次要色 - 灰棕 (更亮) */
+    --morandi-info: #b6c5d8; /* 信息色 - 灰蓝 (更亮) */
+    --morandi-success: #b8d1c0; /* 成功色 - 灰绿 (更亮) */
+    --morandi-danger: #d8b8b8; /* 危险色 - 灰红 (更亮) */
+    --morandi-danger-dark: #c9a8a8; /* 危险色深色 */
+    --morandi-gray: #6b7280; /* 灰色 (更亮) */
+    --morandi-light: #1a1a1a; /* 深色背景 */
+    --morandi-dark: #f7fafc; /* 浅色文本 */
+    --text-primary: #ffffff; /* 主要文本色 */
+    --text-secondary: #e2e8f0; /* 次要文本色 */
+    --text-muted: #a0aec0; /* 淡化文本色 */
+    --text-light: #cbd5e0; /* 浅色文本 */
+    --text-white: #ffffff; /* 白色文本 */
+    --card-bg: #2d3748; /* 卡片背景色 */
+    --nav-bg: #1a202c; /* 导航栏背景色 */
+    --border-color: #4a5568; /* 边框颜色 */
+    --shadow-color: rgba(0, 0, 0, 0.3); /* 阴影颜色 */
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--morandi-light);
+    line-height: 1.7; /* 增加行高改善可读性 */
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin: 0;
+    padding: 0;
+}
+
+body:not(.dark) {
+    background-color: #ffffff;
+}
+
+/* 文本颜色类 */
+.text-primary { color: var(--text-primary) !important; }
+
+/* 间距工具类 */
+.mt-xs { margin-top: var(--spacing-xs) !important; }
+.mt-sm { margin-top: var(--spacing-sm) !important; }
+.mt-md { margin-top: var(--spacing-md) !important; }
+.mt-lg { margin-top: var(--spacing-lg) !important; }
+.mt-xl { margin-top: var(--spacing-xl) !important; }
+
+.mb-xs { margin-bottom: var(--spacing-xs) !important; }
+.mb-sm { margin-bottom: var(--spacing-sm) !important; }
+.mb-md { margin-bottom: var(--spacing-md) !important; }
+.mb-lg { margin-bottom: var(--spacing-lg) !important; }
+.mb-xl { margin-bottom: var(--spacing-xl) !important; }
+
+.ml-xs { margin-left: var(--spacing-xs) !important; }
+.ml-sm { margin-left: var(--spacing-sm) !important; }
+.ml-md { margin-left: var(--spacing-md) !important; }
+.ml-lg { margin-left: var(--spacing-lg) !important; }
+.ml-xl { margin-left: var(--spacing-xl) !important; }
+
+.mr-xs { margin-right: var(--spacing-xs) !important; }
+.mr-sm { margin-right: var(--spacing-sm) !important; }
+.mr-md { margin-right: var(--spacing-md) !important; }
+.mr-lg { margin-right: var(--spacing-lg) !important; }
+.mr-xl { margin-right: var(--spacing-xl) !important; }
+
+.p-0 { padding: 0 !important; }
+.p-xs { padding: var(--spacing-xs) !important; }
+.p-sm { padding: var(--spacing-sm) !important; }
+.p-md { padding: var(--spacing-md) !important; }
+.p-lg { padding: var(--spacing-lg) !important; }
+.p-xl { padding: var(--spacing-xl) !important; }
+
+.pt-xs { padding-top: var(--spacing-xs) !important; }
+.pt-sm { padding-top: var(--spacing-sm) !important; }
+.pt-md { padding-top: var(--spacing-md) !important; }
+.pt-lg { padding-top: var(--spacing-lg) !important; }
+.pt-xl { padding-top: var(--spacing-xl) !important; }
+
+.pb-xs { padding-bottom: var(--spacing-xs) !important; }
+.pb-sm { padding-bottom: var(--spacing-sm) !important; }
+.pb-md { padding-bottom: var(--spacing-md) !important; }
+.pb-lg { padding-bottom: var(--spacing-lg) !important; }
+.pb-xl { padding-bottom: var(--spacing-xl) !important; }
+
+.pl-xs { padding-left: var(--spacing-xs) !important; }
+.pl-sm { padding-left: var(--spacing-sm) !important; }
+.pl-md { padding-left: var(--spacing-md) !important; }
+.pl-lg { padding-left: var(--spacing-lg) !important; }
+.pl-xl { padding-left: var(--spacing-xl) !important; }
+
+.pr-xs { padding-right: var(--spacing-xs) !important; }
+.pr-sm { padding-right: var(--spacing-sm) !important; }
+.pr-md { padding-right: var(--spacing-md) !important; }
+.pr-lg { padding-right: var(--spacing-lg) !important; }
+.pr-xl { padding-right: var(--spacing-xl) !important; }
+
+/* 布局类 */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 var(--spacing-md); }
+
+/* 卡片布局优化 */
+.card { margin-bottom: var(--spacing-md); }
+
+/* 标题间距优化 */
+h1, h2, h3, h4, h5, h6 { margin-top: var(--spacing-md); margin-bottom: var(--spacing-sm); }
+
+/* 段落间距优化 */
+p { margin-bottom: var(--spacing-sm); }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.text-light { color: var(--text-light) !important; }
+.text-white { color: var(--text-white) !important; }
+
+/* 背景颜色类 */
+.bg-primary { background-color: var(--morandi-primary) !important; }
+.bg-secondary { background-color: var(--morandi-secondary) !important; }
+.bg-light { background-color: var(--morandi-light) !important; }
+.bg-white { background-color: var(--card-bg) !important; }
+
+.card {
+    box-shadow: 0 4px 6px var(--shadow-color);
+    transition: transform 0.2s, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-primary);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px var(--shadow-color);
+    background-color: rgba(255, 255, 255, 0.98);
+}
+
+.card-header {
+    background-color: var(--morandi-primary);
+    color: var(--text-white);
+    font-weight: 600;
+    border-radius: 12px 12px 0 0 !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-body {
+    color: var(--text-primary);
+}
+
+.card-text {
+    color: var(--text-secondary);
+}
+
+.card-subtitle {
+    color: var(--text-muted);
+}
+
+.jumbotron {
+    background-color: var(--morandi-primary);
+    color: var(--text-white);
+    border-radius: 12px;
+    padding: 2rem 1rem;
+}
+
+.jumbotron h1,
+.jumbotron h2,
+.jumbotron h3,
+.jumbotron h4,
+.jumbotron h5,
+.jumbotron h6 {
+    color: var(--text-white);
+}
+
+.jumbotron .lead {
+    color: var(--text-light);
+}
+
+.navbar {
+    background-color: var(--nav-bg) !important;
+    transition: background-color 0.3s ease, color 0.3s ease, backdrop-filter 0.3s ease;
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: var(--text-primary) !important;
+}
+
+.navbar-dark .navbar-brand {
+    color: var(--text-white) !important;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+    color: var(--text-primary);
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: var(--text-light);
+    transition: color 0.3s ease;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: var(--text-white);
+}
+
+:root.dark .navbar-brand {
+    color: var(--text-white) !important;
+}
+
+:root.dark .navbar-nav .nav-link {
+    color: var(--text-light);
+}
+
+:root.dark .navbar-nav .nav-link:hover {
+    color: var(--text-white);
+}
+
+.btn-primary {
+    background-color: var(--morandi-primary);
+    border-color: var(--morandi-primary);
+    color: var(--text-white);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--morandi-primary-dark);
+    border-color: var(--morandi-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-outline-primary {
+    color: var(--morandi-primary);
+    border-color: var(--morandi-primary);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--morandi-primary);
+    border-color: var(--morandi-primary);
+    color: var(--text-white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-danger {
+    background-color: var(--morandi-danger);
+    border-color: var(--morandi-danger);
+    color: var(--text-white);
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    background-color: var(--morandi-danger-dark);
+    border-color: var(--morandi-danger-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-outline-danger {
+    color: var(--morandi-danger);
+    border-color: var(--morandi-danger);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-danger:hover {
+    background-color: var(--morandi-danger);
+    border-color: var(--morandi-danger);
+    color: var(--text-white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-control {
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--morandi-primary);
+    box-shadow: 0 0 0 0.2rem rgba(156, 169, 179, 0.25);
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+.alert {
+    border-radius: 12px;
+    border: none;
+}
+
+.alert-info {
+    background-color: var(--morandi-info);
+    color: var(--text-white);
+}
+
+.alert-success {
+    background-color: var(--morandi-success);
+    color: var(--text-white);
+}
+
+.alert-danger {
+    background-color: var(--morandi-danger);
+    color: var(--text-white);
+}
+
+.table {
+    color: var(--text-primary);
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table th {
+    background-color: var(--morandi-primary);
+    color: var(--text-white);
+    border: none;
+    font-weight: 600;
+}
+
+.table td {
+    border-color: var(--border-color);
+    border-top: 1px solid var(--border-color);
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--morandi-light);
+    transition: background-color 0.3s ease;
+}
+
+:root.dark .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.badge {
+    padding: 0.5em 0.75em;
+    font-size: 0.75em;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.badge-primary {
+    background-color: var(--morandi-primary);
+    color: var(--text-white);
+}
+
+.badge-secondary {
+    background-color: var(--morandi-secondary);
+    color: var(--text-white);
+}
+
+.progress {
+    height: 8px;
+    border-radius: 4px;
+    background-color: var(--morandi-gray);
+}
+
+.progress-bar {
+    background-color: var(--morandi-primary);
+    border-radius: 4px;
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+}
+
+.close {
+    color: var(--text-primary);
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+
+.close:hover {
+    color: var(--text-primary);
+    opacity: 0.75;
+}
+
+:root.dark .close {
+    color: var(--text-white);
+}
+
+:root.dark .close:hover {
+    color: var(--text-white);
+}
+
+.pagination .page-link {
+    color: var(--text-primary);
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    color: var(--text-primary);
+    background-color: var(--morandi-light);
+    border-color: var(--morandi-primary);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--morandi-primary);
+    border-color: var(--morandi-primary);
+    color: var(--text-white);
+}
+
+:root.dark .pagination .page-link {
+    color: var(--text-light);
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+:root.dark .pagination .page-link:hover {
+    color: var(--text-white);
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--morandi-primary);
+}
+
+:root.dark .pagination .page-item.active .page-link {
+    background-color: var(--morandi-primary);
+    border-color: var(--morandi-primary);
+    color: var(--text-white);
+}
+
+.nav-tabs .nav-link {
+    color: var(--text-secondary);
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 12px 12px 0 0;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    background-color: var(--morandi-light);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--text-primary);
+    background-color: var(--card-bg);
+    border-color: var(--border-color) var(--border-color) var(--card-bg);
+}
+
+:root.dark .nav-tabs .nav-link {
+    color: var(--text-light);
+}
+
+:root.dark .nav-tabs .nav-link:hover {
+    color: var(--text-white);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+:root.dark .nav-tabs .nav-link.active {
+    color: var(--text-white);
+    background-color: var(--card-bg);
+    border-color: var(--border-color) var(--border-color) var(--card-bg);
+}
+
+.toast {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-primary);
+}
+
+.toast-header {
+    background-color: var(--morandi-primary);
+    color: var(--text-white);
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 12px 12px 0 0;
+}
+
+.tooltip {
+    color: var(--text-primary);
+}
+
+.tooltip-inner {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.bs-tooltip-top .arrow::before {
+    border-top-color: var(--border-color);
+}
+
+.bs-tooltip-bottom .arrow::before {
+    border-bottom-color: var(--border-color);
+}
+
+.bs-tooltip-left .arrow::before {
+    border-left-color: var(--border-color);
+}
+
+.bs-popover-right .arrow::before {
+    border-right-color: var(--border-color);
+}
+
+/* 深色模式样式 */
+:root.dark {
+    --morandi-primary: #6473ff;
+    --morandi-primary-dark: #4f5fe6;
+    --morandi-secondary: #9664ff;
+    --morandi-info: #64a5ff;
+    --morandi-success: #64c9a4;
+    --morandi-danger: #ff6464;
+    --morandi-danger-dark: #e64f4f;
+    --morandi-gray: #718096;
+    --morandi-light: #1a1a2e;
+    --morandi-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0ff;
+    --text-muted: #a0aec0;
+    --text-light: #e2e8f0;
+    --text-white: #ffffff;
+    --card-bg: rgba(255, 255, 255, 0.1);
+    --nav-bg: #0f1419;
+    --border-color: rgba(100, 115, 255, 0.2);
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* 深色模式下的body背景 */
+body.dark {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #ffffff;
+}
+
+/* 深色模式下的元素样式 */
+:root.dark .card {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(100, 115, 255, 0.2);
+    color: #ffffff;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+:root.dark .card:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+:root.dark .jumbotron {
+    background-color: rgba(100, 115, 255, 0.2);
+    color: #ffffff;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+:root.dark .navbar {
+    background-color: rgba(26, 26, 46, 0.9) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* 全局动画效果 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes bounce {
+    0%, 20%, 53%, 80%, 100% {
+        transform: translate3d(0, 0, 0);
+    }
+    40%, 43% {
+        transform: translate3d(0, -10px, 0);
+    }
+    70% {
+        transform: translate3d(0, -5px, 0);
+    }
+    90% {
+        transform: translate3d(0, -2px, 0);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+/* 动画类 */
+.animate-fade-in {
+    animation: fadeIn 0.6s ease forwards;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.animate-fade-in-left {
+    animation: fadeInLeft 0.6s ease forwards;
+}
+
+.animate-fade-in-right {
+    animation: fadeInRight 0.6s ease forwards;
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
+}
+
+.animate-bounce {
+    animation: bounce 2s infinite;
+}
+
+.animate-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* 延迟动画 */
+.animate-delay-1 { animation-delay: 0.1s; }
+.animate-delay-2 { animation-delay: 0.2s; }
+.animate-delay-3 { animation-delay: 0.3s; }
+.animate-delay-4 { animation-delay: 0.4s; }
+.animate-delay-5 { animation-delay: 0.5s; }
+
+/* 悬浮效果增强 */
+.hover-lift {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 32px var(--shadow-color);
+}
+
+.hover-scale {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(1);
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+.hover-glow {
+    transition: all 0.3s ease;
+}
+
+.hover-glow:hover {
+    box-shadow: 0 0 20px rgba(100, 115, 255, 0.6);
+}
+
+.hover-border {
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.hover-border:hover {
+    border-color: var(--morandi-primary);
+}
+
+/* 加载动画 */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--border-color);
+    border-radius: 50%;
+    border-top-color: var(--morandi-primary);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 页面过渡动画 */
+.page-transition {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+}
+
+.page-transition.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 滚动动画 */
+.scroll-animate {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+}
+
+.scroll-animate.animate {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 卡片悬浮效果 */
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.card-hover:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 16px 40px var(--shadow-color);
+}
+
+/* 按钮动画 */
+.btn-animate {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn-animate::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-animate:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-animate:active {
+    transform: scale(0.95);
+}
+
+/* 图标动画 */
+.icon-hover {
+    transition: all 0.3s ease;
+}
+
+.icon-hover:hover {
+    transform: rotate(10deg) scale(1.1);
+}
+
+/* 导航栏动画 */
+.navbar {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.navbar-scrolled {
+    background-color: var(--card-bg) !important;
+    box-shadow: 0 2px 20px var(--shadow-color);
+}
+
+/* 响应式动画 */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+.popover {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-primary);
+}
+
+.popover-header {
+    background-color: var(--morandi-primary);
+    color: var(--text-white);
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 12px 12px 0 0;
+}
+
+.popover-body {
+    color: var(--text-primary);
+}
+
+.bs-popover-top .arrow::before {
+    border-top-color: var(--border-color);
+}
+
+.bs-popover-bottom .arrow::before {
+    border-bottom-color: var(--border-color);
+}
+
+.bs-popover-left .arrow::before {
+    border-left-color: var(--border-color);
+}
+
+.bs-popover-right .

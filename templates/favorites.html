@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}我的收藏 - Tlias智能学习{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">我的收藏课程</h2>
+            {% if courses %}
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    {% for course in courses %}
+                        <div class="col">
+                            <div class="card h-100 shadow-sm border-0 rounded-lg hover:shadow-md transition-shadow duration-300">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title text-primary mb-2">{{ course.name }}</h5>
+                                    <p class="card-text text-gray-600 mb-3 line-clamp-2">{{ course.description }}</p>
+                                    <div class="mt-auto">
+                                        <div class="d-flex justify-between items-center">
+                                            <span class="text-sm text-gray-500">
+                                                创建于: {{ course.created_at.strftime('%Y-%m-%d') }}
+                                            </span>
+                                            <span class="badge bg-secondary">{{ course.level }}</span>
+                                        </div>
+                                        <a href="{{ url_for('course_detail', course_id=course.id) }}" class="btn btn-primary mt-3 w-100">
+                                            查看详情
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center p-5" role="alert">
+                    <i class="fas fa-bookmark text-warning mr-2"></i>您还没有收藏任何课程，快去探索并收藏感兴趣的课程吧！
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

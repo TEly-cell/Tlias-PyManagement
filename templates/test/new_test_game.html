@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试消消乐游戏</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .game-container {
+            margin-top: 20px;
+        }
+        #game-area {
+            border: 2px solid #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        #game-grid {
+            display: grid;
+            gap: 2px;
+            background-color: #eee;
+        }
+        .game-cell {
+            background-color: white;
+            border: 1px solid #ddd;
+            position: relative;
+        }
+        .game-cell.selected {
+            border: 2px solid #ff9800;
+            box-sizing: border-box;
+        }
+        .btn-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .debug-info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>消消乐游戏测试</h1>
+    <p>玩法: 点击两个相邻的方块进行交换，匹配三个或更多相同的方块</p>
+
+    <div class="debug-info">
+        <div id="login-status">登录状态: 未检查</div>
+        <div id="game-status">游戏状态: 未创建</div>
+    </div>
+
+    <div class="btn-group">
+        <button id="test-login">测试登录状态</button>
+        <button id="test-create-game">创建游戏</button>
+        <button id="start-btn">开始游戏</button>
+        <button id="reset-btn">重置游戏</button>
+    </div>
+
+    <div class="game-container">
+        <div id="game-area">
+            <div id="game-grid"></div>
+        </div>
+        <div>得分: <span id="score">0</span></div>
+    </div>
+
+    <script src="/static/js/match3_v2.js"></script>
+    <script src="/static/js/test_api.js"></script>
+</body>
+</html>

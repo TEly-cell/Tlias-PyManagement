@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSRF令牌 -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>消消乐 - Tlias智能学习辅助系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --morandi-light: #f5f5f0;
+            --morandi-dark: #333333;
+            --morandi-primary: #88a0a8;
+            --morandi-primary-dark: #6d828a;
+            --card-bg: #ffffff;
+            --morandi-blue-gray: #9ca9b3;
+            --morandi-gray-brown: #c9b8b0;
+            --morandi-gray-blue: #a3b1c6;
+            --morandi-gray-green: #b0c9b8;
+            --morandi-gray-red: #d8b0b0;
+        }
+        body {
+            background-color: var(--morandi-light);
+            color: var(--morandi-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .game-container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+        .game-title {
+            text-align: center;
+            margin: 0 auto 20px;
+            color: var(--morandi-primary);
+            max-width: 80%;
+        }
+        .game-area {
+            position: relative;
+            margin: 0 auto;
+            border: 2px solid var(--morandi-primary);
+            background-color: var(--card-bg);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .game-grid {
+            display: grid;
+            gap: 1px;
+            background-color: #e0e0e0;
+            padding: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .game-cell {
+            background-color: var(--card-bg);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            min-height: 40px;
+            min-width: 40px;
+        }
+        .game-cell:active {
+            transform: scale(0.95);
+        }
+        .game-cell:hover {
+            transform: scale(1.05);
+        }
+        .game-cell.selected {
+            border: 2px solid var(--morandi-primary);
+        }
+        .game-cell-type-1 {
+            background-color: var(--morandi-blue-gray);
+        }
+        .game-cell-type-2 {
+            background-color: var(--morandi-gray-brown);
+        }
+        .game-cell-type-3 {
+            background-color: var(--morandi-gray-blue);
+        }
+        .game-cell-type-4 {
+            background-color: var(--morandi-gray-green);
+        }
+        .game-cell-type-5 {
+            background-color: var(--morandi-gray-red);
+        }
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            max-width: 80%;
+            margin: 0 auto;
+        }
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        .control-btn {
+            background-color: var(--morandi-primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .control-btn:hover {
+            background-color: var(--morandi-primary-dark);
+        }
+        .btn-morandi-secondary {
+            background-color: var(--morandi-blue-gray);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .btn-morandi-secondary:hover {
+            background-color: #8a9aa3;
+        }
+        .btn-morandi-primary {
+            background-color: var(--morandi-primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .btn-morandi-primary:hover {
+            background-color: var(--morandi-primary-dark);
+        }
+        .btn-morandi-danger {
+            background-color: var(--morandi-gray-red);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .btn-morandi-danger:hover {
+            background-color: #c09a9a;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container container mt-4">
+        <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 20px; max-width: 80%; margin: 0 auto;">
+            <button onclick="window.location.href='{{ url_for('games') }}'" class="btn-morandi-secondary">
+                <i class="bi bi-arrow-left"></i> 返回游戏中心
+            </button>
+            <h1 class="game-title">消消乐</h1>
+            <div></div> <!-- 占位元素保持布局平衡 -->
+        </div>
+        <div class="game-info">
+            <div class="score">得分: <span id="score">0</span></div>
+            <div class="instructions">
+                玩法: 点击两个相邻的方块进行交换，匹配三个或更多相同的方块
+            </div>
+        </div>
+        <div class="alert alert-info mt-3" role="alert" style="max-width: 80%; margin: 0 auto;">
+            <strong>提示:</strong> 请点击下方的 <button class="btn-morandi-primary btn-sm">开始游戏</button> 按钮或按Enter键开始游戏
+        </div>
+        <div id="game-area" class="game-area">
+            <div id="game-grid" class="game-grid"></div>
+        </div>
+        <style>
+            /* 方块移动动画 */
+            .game-cell {
+                transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+                position: relative;
+            }
+
+            /* 消除动画 */
+            @keyframes eliminate-animation { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.8; } 100% { transform: scale(0); opacity: 0; } }
+            .eliminate-animation { animation: eliminate-animation 0.5s forwards; }
+
+            /* 下落动画 */
+            @keyframes fall-animation { 0% { transform: translateY(-100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+            .fall-animation { animation: fall-animation 0.3s ease-out forwards; }
+        </style>
+        <div class="control-buttons">
+            <button id="start-btn" class="btn-morandi-primary btn-lg fw-bold" onclick="initializeMatch3Game()">开始游戏</button>
+            <button id="reset-btn" class="btn-morandi-danger" onclick="match3Game.resetGame()">重置游戏</button>
+        </div>
+    </div>
+
+    <script src="/static/js/match3_v2.js"></script>
+    <script>
+        // 简化的开始游戏函数
+        function startGame() {
+            console.log('开始游戏按钮被点击');
+            if (typeof initializeMatch3Game === 'function') {
+                initializeMatch3Game();
+            } else {
+                console.error('initializeMatch3Game函数未定义');
+            }
+        }
+
+        // 调试函数：检查游戏状态
+        function debugGameState() {
+            console.log('=== 游戏调试信息 ===');
+            console.log('match3Game实例:', window.match3Game);
+            if (window.match3Game) {
+                console.log('游戏ID:', window.match3Game.gameId);
+                console.log('游戏状态:', window.match3Game.gameState);
+                console.log('游戏网格元素:', window.match3Game.gameGrid);
+                console.log('分数元素:', window.match3Game.scoreElement);
+            }
+            console.log('DOM元素检查:');
+            console.log('game-grid:', document.getElementById('game-grid'));
+            console.log('score:', document.getElementById('score'));
+            console.log('start-btn:', document.getElementById('start-btn'));
+            console.log('reset-btn:', document.getElementById('reset-btn'));
+            
+            // 检查是否有可点击的方块
+            const cells = document.querySelectorAll('.game-cell');
+            console.log('可点击方块数量:', cells.length);
+            cells.forEach((cell, index) => {
+                console.log(`方块 ${index}:`, cell.dataset.x, cell.dataset.y, cell.className);
+            });
+        }
+
+        // 添加键盘事件监听
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                console.log('按下了Enter键，开始游戏');
+                startGame();
+            } else if (event.key === 'd' && event.ctrlKey) {
+                // Ctrl+D 调试快捷键
+                debugGameState();
+            }
+        });
+
+        // 确保页面加载完成后自动初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成，准备开始游戏');
+            
+            // 添加调试按钮
+            const debugBtn = document.createElement('button');
+            debugBtn.textContent = '调试检查';
+            debugBtn.style.position = 'fixed';
+            debugBtn.style.top = '10px';
+            debugBtn.style.right = '10px';
+            debugBtn.style.zIndex = '1000';
+            debugBtn.style.backgroundColor = '#ff9800';
+            debugBtn.style.color = 'white';
+            debugBtn.style.padding = '5px 10px';
+            debugBtn.style.border = 'none';
+            debugBtn.style.borderRadius = '3px';
+            debugBtn.onclick = debugGameState;
+            document.body.appendChild(debugBtn);
+            
+            console.log('调试按钮已添加，按Ctrl+D或点击右上角按钮查看调试信息');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Tlias智能学习辅助系统 - 更新学习进度{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">更新学习进度: {{ material.title }}</div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.completion_rate.label(class="form-label") }}
+                        {{ form.completion_rate(class="form-control") }}
+                        <div class="form-text">输入0-100之间的数字表示完成百分比</div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.time_spent.label(class="form-label") }}
+                        {{ form.time_spent(class="form-control") }}
+                        <div class="form-text">输入本次学习花费的时间(分钟)</div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.completed.label(class="form-label") }}
+                        {{ form.completed(class="form-select") }}
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

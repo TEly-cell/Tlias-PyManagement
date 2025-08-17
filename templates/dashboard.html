@@ -1,0 +1,465 @@
+{% extends 'base.html' %}
+
+{% block title %}Tlias智能学习辅助系统 - 我的学习{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        /* 浅色模式变量 */
+        --light-text-primary: #000000;
+        --light-text-secondary: #374151;
+        --light-bg-primary: rgba(255, 255, 255, 0.95);
+        --light-bg-secondary: rgba(249, 250, 251, 0.98);
+        --light-border: rgba(209, 213, 219, 0.9);
+        --light-border-hover: rgba(156, 163, 175, 0.9);
+        --light-shadow: rgba(0, 0, 0, 0.1);
+        --light-gradient: linear-gradient(90deg, #6366f1, #8b5cf6);
+        --light-form-bg: rgba(255, 255, 255, 0.9);
+        --light-form-text: #000000;
+        --light-form-border: rgba(209, 213, 219, 0.8);
+        
+        /* 深色模式变量 */
+        --dark-text-primary: #ffffff;
+        --dark-text-secondary: #b0b0ff;
+        --dark-bg-primary: rgba(10, 10, 26, 0.7);
+        --dark-bg-secondary: rgba(10, 10, 26, 0.6);
+        --dark-border: rgba(100, 115, 255, 0.2);
+        --dark-border-hover: rgba(100, 115, 255, 0.5);
+        --dark-shadow: rgba(0, 0, 0, 0.3);
+        --dark-gradient: linear-gradient(90deg, #6473ff, #9664ff);
+        --dark-form-bg: rgba(255, 255, 255, 0.1);
+        --dark-form-text: #ffffff;
+        --dark-form-border: rgba(255, 255, 255, 0.2);
+        
+        /* 默认使用深色模式 */
+        --text-primary: var(--dark-text-primary);
+        --text-secondary: var(--dark-text-secondary);
+        --bg-primary: var(--dark-bg-primary);
+        --bg-secondary: var(--dark-bg-secondary);
+        --border-color: var(--dark-border);
+        --hover-border: var(--dark-border-hover);
+        --shadow-color: var(--dark-shadow);
+        --primary-gradient: var(--dark-gradient);
+        --form-bg: var(--dark-form-bg);
+        --form-text: var(--dark-form-text);
+        --form-border: var(--dark-form-border);
+    }
+
+    /* 深色模式 */
+    .dark {
+        --text-primary: var(--dark-text-primary);
+        --text-secondary: var(--dark-text-secondary);
+        --bg-primary: var(--dark-bg-primary);
+        --bg-secondary: var(--dark-bg-secondary);
+        --border-color: var(--dark-border);
+        --hover-border: var(--dark-border-hover);
+        --shadow-color: var(--dark-shadow);
+        --primary-gradient: var(--dark-gradient);
+        --form-bg: var(--dark-form-bg);
+        --form-text: var(--dark-form-text);
+        --form-border: var(--dark-form-border);
+    }
+
+    /* 浅色模式 */
+    :root:not(.dark) {
+        --text-primary: var(--light-text-primary);
+        --text-secondary: var(--light-text-secondary);
+        --bg-primary: var(--light-bg-primary);
+        --bg-secondary: var(--light-bg-secondary);
+        --border-color: var(--light-border);
+        --hover-border: var(--light-border-hover);
+        --shadow-color: var(--light-shadow);
+        --primary-gradient: var(--light-gradient);
+        --form-bg: var(--light-form-bg);
+        --form-text: var(--light-form-text);
+        --form-border: var(--light-form-border);
+        
+        .starry-bg {
+            display: none;
+        }
+    }
+
+    .starry-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .star {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        animation: twinkle 2s infinite alternate;
+    }
+
+    @keyframes twinkle {
+        0% { opacity: 0.3; transform: scale(1); }
+        100% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .dashboard-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .dashboard-header {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .text-white-custom {
+        color: var(--text-primary);
+    }
+
+    .text-gray-custom {
+        color: var(--text-secondary);
+    }
+
+    .btn-primary-custom {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px var(--shadow-color);
+    }
+
+    .form-control, .form-select {
+        background: var(--form-bg);
+        border: 1px solid var(--form-border);
+        color: var(--form-text);
+        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+    }
+
+    .form-control::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background: var(--form-bg);
+        border-color: rgba(139, 92, 246, 0.5);
+        box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+    }
+
+    .progress {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .progress-bar {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .list-group-item {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+    }
+
+    .list-group-item:hover {
+        background: var(--bg-primary);
+    }
+
+    .modal-content {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="starry-bg" id="starry-bg"></div>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-primary" id="theme-toggle" onclick="toggleThemeDirect()" title="切换主题" style="position: fixed; top: 20px; right: 20px; z-index: 9999; cursor: pointer; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-moon-fill" id="theme-icon"></i>
+        </button>
+    </div>
+    
+    <div class="dashboard-header d-flex justify-content-between align-items-center animate-fade-in-up">
+        <div class="animate-fade-in-left">
+            <h1 class="display-4 text-white-custom">我的学习中心</h1>
+            <p class="lead text-gray-custom">管理您的课程，跟踪学习进度，发现个性化推荐</p>
+        </div>
+        <div class="text-center animate-fade-in-right">
+            <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) if current_user.is_authenticated and current_user.avatar else url_for('static', filename='avatars/default.png') }}" alt="用户头像" class="rounded-circle hover-scale" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--primary-purple); box-shadow: 0 0 20px rgba(100, 115, 255, 0.5);">
+            {% if current_user.is_authenticated %}
+            <div class="text-white-custom mt-2">{{ current_user.username }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row gap-6">
+        <div class="col-md-8">
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="text-2xl font-bold text-white-custom">我的课程</h2>
+                </div>
+                <div class="dashboard-card p-4 card-hover">
+                    <form method="GET" action="{{ url_for('dashboard') }}">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="搜索课程..." value="{{ search_query }}">
+                            <select name="sort_by" class="form-select">
+                                <option value="created_at_desc" {% if sort_by == 'created_at_desc' %}selected{% endif %}>最近创建</option>
+                                <option value="created_at_asc" {% if sort_by == 'created_at_asc' %}selected{% endif %}>最早创建</option>
+                                <option value="name_asc" {% if sort_by == 'name_asc' %}selected{% endif %}>名称升序</option>
+                                <option value="name_desc" {% if sort_by == 'name_desc' %}selected{% endif %}>名称降序</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary-custom">搜索</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <a href="{{ url_for('create_course') }}" class="btn btn-primary-custom btn-lg mb-4 btn-animate hover-lift">
+                <i class="bi bi-plus-circle"></i> 创建新课程
+            </a>
+            {% if courses %}
+            <div class="row row-cols-1 md:row-cols-2 gap-4">
+                {% for course in courses %}
+                <a href="{{ url_for('course_detail', course_id=course.id) }}" class="text-decoration-none d-block">
+                    <div class="dashboard-card h-100 cursor-pointer card-hover">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between items-start mb-2">
+                                <h5 class="card-title font-bold text-white-custom">{{ course.name }}</h5>
+                                <span class="badge bg-gradient-to-r from-purple-500 to-indigo-500 text-white">{{ course.created_at.strftime('%Y-%m-%d') }}</span>
+                            </div>
+                            <p class="card-text text-gray-custom mb-3">{{ course.description }}</p>
+                            <div class="d-flex justify-content-between items-center">
+                                <span class="text-sm text-gray-custom">{{ course.materials|length }} 个学习资料</span>
+                                <span class="text-purple-400"><i class="bi bi-arrow-right"></i> 点击查看详情</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="dashboard-card p-5 text-center">
+                <i class="bi bi-book-open text-4xl mb-3 text-purple-400"></i>
+                                <p class="text-white-custom">您还没有创建任何课程，点击上方按钮创建第一个课程吧！</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4 mt-8 md:mt-0">
+            <div class="dashboard-card mb-8 animate-fade-in-up animate-delay-1">
+                <div class="card-header">
+                    <h3 class="text-lg font-semibold text-white-custom">学习统计</h3>
+                </div>
+                <div class="card-body p-6">
+                    <div class="mb-8">
+                        <div class="d-flex justify-content-between items-center mb-2">
+                            <span class="text-gray-custom">总课程数</span>
+                            <span class="font-bold text-white-custom text-lg">{{ courses|length }}</span>
+                        </div>
+                        <div class="progress rounded-full h-3">
+                            <div class="progress-bar rounded-full" role="progressbar" style="width: {{ courses|length * 20 }}%" aria-valuenow="{{ courses|length }}" aria-valuemin="0" aria-valuemax="5"></div>
+                        </div>
+                        <div class="text-right text-xs text-gray-custom mt-1">{{ courses|length }} / 5</div>
+                    </div>
+                    <div class="mb-8">
+                        <div class="d-flex justify-content-between items-center mb-2">
+                            <span class="text-gray-custom">总学习资料</span>
+                            <span class="font-bold text-white-custom text-lg">0</span>
+                        </div>
+                        <div class="progress rounded-full h-3">
+                            <div class="progress-bar rounded-full" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="text-right text-xs text-gray-custom mt-1">0 / 未知</div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between items-center mb-2">
+                            <span class="text-gray-custom">已完成学习</span>
+                            <span class="font-bold text-white-custom text-lg">0%</span>
+                        </div>
+                        <div class="progress rounded-full h-3">
+                            <div class="progress-bar rounded-full" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card mb-6 animate-fade-in-up animate-delay-2">
+                <div class="card-header bg-gradient-to-r from-green-500 to-teal-500 text-white font-bold">最近活动</div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="#" class="text-decoration-none d-block">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-book text-green-400 me-3"></i>
+                                    <span class="mb-0 text-white-custom">完成Python课程第一章学习</span>
+                                </div>
+                                <span class="badge bg-gradient-to-r from-yellow-500 to-orange-500 text-white">今天</span>
+                            </div>
+                        </a>
+                        <a href="#" class="text-decoration-none d-block">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-play-circle text-green-400 me-3"></i>
+                                    <span class="mb-0 text-white-custom">观看Java视频教程30分钟</span>
+                                </div>
+                                <span class="badge bg-gradient-to-r from-blue-500 to-cyan-500 text-white">昨天</span>
+                            </div>
+                        </a>
+                        <a href="#" class="text-decoration-none d-block">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-pencil text-green-400 me-3"></i>
+                                    <span class="mb-0 text-white-custom">完成C++编程练习</span>
+                                </div>
+                                <span class="badge bg-gradient-to-r from-red-500 to-pink-500 text-white">前天</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card animate-fade-in-up animate-delay-3">
+                <div class="card-header bg-gradient-to-r from-green-500 to-teal-500 text-white font-bold">今日任务</div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="#" class="text-decoration-none d-block">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <input type="checkbox" class="form-check-input me-3" id="task1">
+                                    <label for="task1" class="mb-0 text-white-custom">完成Python课程第一章学习</label>
+                                </div>
+                                <span class="badge bg-gradient-to-r from-yellow-500 to-orange-500 text-white">中等</span>
+                            </div>
+                        </a>
+                        <a href="#" class="text-decoration-none d-block">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <input type="checkbox" class="form-check-input me-3" id="task2">
+                                    <label for="task2" class="mb-0 text-white-custom">观看Java视频教程30分钟</label>
+                                </div>
+                                <span class="badge bg-gradient-to-r from-blue-500 to-cyan-500 text-white">简单</span>
+                            </div>
+                        </a>
+                        <a href="#" class="text-decoration-none d-block">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <input type="checkbox" class="form-check-input me-3" id="task3">
+                                    <label for="task3" class="mb-0 text-white-custom">完成C++编程练习</label>
+                                </div>
+                                <span class="badge bg-gradient-to-r from-red-500 to-pink-500 text-white">困难</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card animate-fade-in-up animate-delay-3">
+                <div class="card-header bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold">
+                    <i class="bi bi-journal-text me-2"></i>精选文章教程
+                </div>
+                <div class="card-body text-center p-6">
+                    <i class="bi bi-book-open text-4xl mb-3 text-purple-400"></i>
+                    <h5 class="text-white-custom mb-3">提升学习效率</h5>
+                    <p class="text-gray-custom mb-4">
+                        浏览精选的文章教程，学习最佳实践和技巧，让您的学习更高效！
+                    </p>
+                    <a href="{{ url_for('learning_stats') }}" class="btn btn-primary-custom w-100">
+                        <i class="bi bi-arrow-right-circle me-2"></i>立即查看文章教程
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+        // 动态生成星星背景
+        function createStars() {
+            const starryBg = document.getElementById('starry-bg');
+            if (!starryBg) return;
+            
+            const starCount = 150;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // 随机位置
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                
+                // 随机大小
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                
+                // 随机动画延迟
+                star.style.animationDelay = Math.random() * 2 + 's';
+                
+                starryBg.appendChild(star);
+            }
+        }
+
+        // 页面加载完成后创建星星
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM已加载完成');
+            createStars();
+        });
+    </script>
+
+    <script>
+        // 全局主题切换函数
+        function toggleThemeDirect() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // 初始化主题
+        (function() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (localStorage.getItem('theme') === 'light') {
+                html.classList.remove('dark');
+                if (themeIcon) themeIcon.className = 'bi bi-sun-fill';
+            } else {
+                html.classList.add('dark');
+                if (themeIcon) themeIcon.className = 'bi bi-moon-fill';
+            }
+        })();
+    </script>
+{% endblock %}

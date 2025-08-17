@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Tlias智能学习辅助系统 - 创建课程{% endblock %}
+
+{% block extra_css %}
+<style>
+    .animate-fade-in-up {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-delay-1 { animation-delay: 0.2s; }
+    .animate-delay-2 { animation-delay: 0.4s; }
+    .animate-delay-3 { animation-delay: 0.6s; }
+    .animate-delay-4 { animation-delay: 0.8s; }
+    
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg rounded-lg overflow-hidden animate-fade-in-up">
+                <div class="card-header bg-primary text-white font-bold py-4 animate-fade-in-up animate-delay-1">
+                    <h3 class="mb-0">创建新课程</h3>
+                </div>
+                <div class="card-body p-6">
+                    <form method="POST" action="" class="space-y-6">
+                        {{ form.hidden_tag() }}
+                        <div class="animate-fade-in-up animate-delay-2">
+                            {{ form.name.label(class="form-label font-medium mb-2") }}
+                            {{ form.name(class="form-control form-control-lg rounded-md", placeholder="输入课程名称") }}
+                            {% for error in form.name.errors %}
+                                <div class="text-danger mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="animate-fade-in-up animate-delay-3">
+                            {{ form.description.label(class="form-label font-medium mb-2") }}
+                            {{ form.description(class="form-control form-control-lg rounded-md", rows=6, placeholder="输入课程描述") }}
+                            {% for error in form.description.errors %}
+                                <div class="text-danger mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="pt-2 animate-fade-in-up animate-delay-4">
+                            {{ form.submit(class="btn btn-primary btn-lg w-full py-3 hover:bg-primary-dark transition-colors duration-300 rounded-md") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

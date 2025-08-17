@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Tlias智能学习辅助系统 - 登录{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-white relative overflow-hidden">
+    <div class="row justify-content-center relative z-10">
+        <div class="col-md-5">
+            <div class="dashboard-card mt-5 animate-fade-in-up">
+                <div class="card-header bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-center">
+                    <h4 class="mb-0"><i class="fas fa-sign-in-alt mr-2"></i>用户登录</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-4 animate-fade-in-up animate-delay-1">
+                            {{ form.username.label(class="form-label text-gray-700 font-medium") }}
+                            {{ form.username(class="form-control bg-white border-gray-300 text-gray-900 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 hover-border") }}
+                        </div>
+                        <div class="mb-4 animate-fade-in-up animate-delay-2">
+                            {{ form.password.label(class="form-label text-gray-700 font-medium") }}
+                            {{ form.password(class="form-control bg-white border-gray-300 text-gray-900 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 hover-border") }}
+                        </div>
+                        <div class="d-grid gap-2 animate-fade-in-up animate-delay-3">
+                            {{ form.submit(class="btn btn-primary-custom w-full py-3 btn-animate hover-lift") }}
+                        </div>
+                    </form>
+                    <div class="mt-4 text-center animate-fade-in-up animate-delay-4">
+                        <p class="text-gray-600">还没有账号？ <a href="{{ url_for('register') }}" class="text-purple-600 hover:text-purple-700 transition-colors hover-scale">立即注册</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 白底样式 */
+.bg-white {
+    background-color: #ffffff;
+}
+
+.text-gray-700 {
+    color: #374151;
+}
+
+.text-gray-900 {
+    color: #111827;
+}
+
+.text-gray-600 {
+    color: #4b5563;
+}
+
+.text-gray-500 {
+    color: #6b7280;
+}
+
+.border-gray-300 {
+    border-color: #d1d5db;
+}
+
+.placeholder-gray-500::placeholder {
+    color: #6b7280;
+}
+
+/* 卡片样式 - 与注册页面一致 */
+.dashboard-card {
+    border: 1px solid rgba(209, 213, 219, 0.8);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+}
+
+.card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(209, 213, 219, 0.3);
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* 表单控件样式 - 适配白底 */
+.form-control {
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111827;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    background: #ffffff;
+}
+
+.form-control::placeholder {
+    color: #6b7280;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* 按钮样式 - 与注册页面一致 */
+.btn-primary-custom {
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-custom:hover {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+}
+
+/* 动画 - 与注册页面一致 */
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-in-out;
+}
+
+.animate-delay-1 { animation-delay: 0.1s; }
+.animate-delay-2 { animation-delay: 0.2s; }
+.animate-delay-3 { animation-delay: 0.3s; }
+.animate-delay-4 { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 悬停效果 - 与注册页面一致 */
+.hover-border:hover {
+    border-color: rgba(139, 92, 246, 0.8) !important;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .dashboard-card {
+        margin: 1rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>API测试</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('API测试页面加载完成');
+            console.log('当前页面URL:', window.location.href);
+            console.log('API基础URL:', window.location.origin);
+            console.log('API测试页面加载完成');
+
+            // 测试登录状态检查
+            document.getElementById('test-login').addEventListener('click', function() {
+                console.log('测试登录状态检查...');
+                fetch('/api/check_login', {credentials: 'same-origin'})
+                    .then(response => {
+                        console.log('登录状态检查响应状态:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('登录状态检查结果:', data);
+                        document.getElementById('login-result').textContent = JSON.stringify(data);
+                    })
+                    .catch(error => {
+                        console.error('登录状态检查失败:', error);
+                        document.getElementById('login-result').textContent = '失败: ' + error.message;
+                    });
+            });
+
+            // 测试创建游戏
+            document.getElementById('test-create-game').addEventListener('click', function() {
+                console.log('测试创建游戏...');
+                fetch('/api/games/create?type=match3', {credentials: 'same-origin'})
+                    .then(response => {
+                        console.log('创建游戏响应状态:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('创建游戏结果:', data);
+                        document.getElementById('create-game-result').textContent = JSON.stringify(data);
+                    })
+                    .catch(error => {
+                        console.error('创建游戏失败:', error);
+                        document.getElementById('create-game-result').textContent = '失败: ' + error.message;
+                    });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>API测试页面</h1>
+    <button id="test-login">测试登录状态检查</button>
+    <div>登录状态检查结果: <span id="login-result"></span></div>
+    <br>
+    <button id="test-create-game">测试创建游戏</button>
+    <div>创建游戏结果: <span id="create-game-result"></span></div>
+</body>
+</html>

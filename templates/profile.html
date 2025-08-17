@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+
+{% block title %}个人中心 - Tlias智能学习{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        /* 浅色模式变量 */
+        --light-bg: #f8fafc;
+        --light-card-bg: rgba(255, 255, 255, 0.9);
+        --light-text-primary: #000000;
+        --light-text-secondary: #333333;
+        --light-border: rgba(229, 231, 235, 0.8);
+        --light-border-hover: rgba(209, 213, 219, 0.9);
+        --light-shadow: rgba(0, 0, 0, 0.1);
+        --light-gradient: linear-gradient(135deg, #667eea, #764ba2);
+        
+        /* 深色模式变量 */
+        --dark-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        --dark-card-bg: rgba(255, 255, 255, 0.1);
+        --dark-text-primary: #ffffff;
+        --dark-text-secondary: rgba(255, 255, 255, 0.9);
+        --dark-border: rgba(255, 255, 255, 0.2);
+        --dark-border-hover: rgba(255, 255, 255, 0.3);
+        --dark-shadow: rgba(0, 0, 0, 0.3);
+        --dark-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        
+        /* 默认使用深色模式 */
+        --bg-color: var(--dark-bg);
+        --card-bg: var(--dark-card-bg);
+        --text-primary: var(--dark-text-primary);
+        --text-secondary: var(--dark-text-secondary);
+        --border-color: var(--dark-border);
+        --border-hover: var(--dark-border-hover);
+        --shadow-color: var(--dark-shadow);
+        --gradient-color: var(--dark-gradient);
+    }
+
+    /* 深色模式 */
+    .dark {
+        --bg-color: var(--dark-bg);
+        --card-bg: var(--dark-card-bg);
+        --text-primary: var(--dark-text-primary);
+        --text-secondary: var(--dark-text-secondary);
+        --border-color: var(--dark-border);
+        --border-hover: var(--dark-border-hover);
+        --shadow-color: var(--dark-shadow);
+        --gradient-color: var(--dark-gradient);
+    }
+
+    /* 浅色模式 */
+    :root:not(.dark) {
+        --bg-color: var(--light-bg);
+        --card-bg: var(--light-card-bg);
+        --text-primary: var(--light-text-primary);
+        --text-secondary: var(--light-text-secondary);
+        --border-color: var(--light-border);
+        --border-hover: var(--light-border-hover);
+        --shadow-color: var(--light-shadow);
+        --gradient-color: var(--light-gradient);
+    }
+
+    .starry-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--bg-color);
+        z-index: -1;
+        overflow: hidden;
+        transition: background 0.3s ease;
+    }
+    .star {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        animation: twinkle 2s infinite alternate;
+    }
+    @keyframes twinkle {
+        0% { opacity: 0.3; }
+        100% { opacity: 1; }
+    }
+    :root:not(.dark) .star {
+        display: none;
+    }
+    .profile-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px var(--shadow-color);
+        transition: all 0.3s ease;
+    }
+    .profile-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px var(--shadow-color), 0 0 0 1px rgba(100, 115, 255, 0.1);
+        border-color: var(--border-hover);
+    }
+    .profile-card .card-header {
+        background: rgba(255, 255, 255, 0.15);
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+    :root:not(.dark) .profile-card .card-header {
+        background: rgba(102, 126, 234, 0.1);
+    }
+    .profile-card .card-body {
+        color: var(--text-secondary);
+        transition: color 0.3s ease;
+    }
+    .form-control {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+    .form-control::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+    .form-control:focus {
+        background: var(--card-bg);
+        border-color: var(--border-hover);
+        box-shadow: 0 0 0 0.2rem rgba(100, 115, 255, 0.25);
+    }
+    .btn-primary-custom {
+        background: var(--gradient-color);
+        border: none;
+        border-radius: 25px;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px var(--shadow-color);
+    }
+    .text-white-custom {
+        color: var(--text-primary) !important;
+        transition: color 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="starry-bg" id="starry-bg"></div>
+<div class="min-h-screen relative overflow-hidden">
+    
+    <div class="container relative z-10 pt-8">
+        <h1 class="text-4xl font-bold text-white mb-8 text-center bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">个人中心</h1>
+        <div class="row mt-5">
+            <div class="col-md-3 mb-4">
+                <div class="profile-card">
+                    <div class="card-header font-bold">导航菜单</div>
+                    <div class="card-body">
+                        <div class="list-group bg-transparent">
+                            <a href="{{ url_for('profile') }}" class="list-group-item list-group-item-action bg-transparent text-white font-weight-bold mb-2 rounded border-0 hover:bg-purple-600/30 transition-colors">个人信息</a>
+                            <a href="{{ url_for('change_password') }}" class="list-group-item list-group-item-action bg-transparent text-white mb-2 rounded border-0 hover:bg-purple-600/30 transition-colors">修改密码</a>
+                            <a href="{{ url_for('update_profile') }}" class="list-group-item list-group-item-action bg-transparent text-white mb-2 rounded border-0 hover:bg-purple-600/30 transition-colors">账户设置</a>
+                            <a href="{{ url_for('my_favorites') }}" class="list-group-item list-group-item-action bg-transparent text-white mb-2 rounded border-0 hover:bg-purple-600/30 transition-colors">我的收藏</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-card mt-4">
+                    <div class="card-header font-bold">用户信息</div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <img src="{{ url_for('static', filename='avatars/' + current_user.avatar if current_user.avatar else 'avatars/default.png') }}" alt="用户头像" class="rounded-circle img-thumbnail mx-auto d-block" style="width: 120px; height: 120px; border: 2px solid #8b5cf6;">
+                        </div>
+                        <div class="mb-3">
+                            <p class="text-white-custom"><i class="fas fa-user text-purple-400 mr-2"></i><strong>用户名:</strong> {{ current_user.username }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="text-white-custom"><i class="fas fa-envelope text-purple-400 mr-2"></i><strong>邮箱:</strong> {{ current_user.email }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="text-white-custom"><i class="fas fa-calendar text-purple-400 mr-2"></i><strong>注册日期:</strong> {{ current_user.created_at.strftime('%Y-%m-%d') if current_user.created_at else '未设置' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <div class="col-md-8">
+            <div class="profile-card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-lock mr-2"></i>修改密码</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('change_password') }}">
+                        {{ password_form.hidden_tag() }}
+                        <div class="mb-4">
+                            {{ password_form.old_password.label(class="form-label text-white-custom font-medium") }}
+                            {{ password_form.old_password(class="form-control rounded-lg") }}
+                        </div>
+                        <div class="mb-4">
+                            {{ password_form.new_password.label(class="form-label text-white-custom font-medium") }}
+                            {{ password_form.new_password(class="form-control rounded-lg") }}
+                        </div>
+                        <div class="mb-4">
+                            {{ password_form.confirm_password.label(class="form-label text-white-custom font-medium") }}
+                            {{ password_form.confirm_password(class="form-control rounded-lg") }}
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom rounded-lg px-6 py-2">保存修改</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-cog mr-2"></i>账户设置</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data">
+                        {{ profile_form.hidden_tag() }}
+                        <div class="mb-4">
+                            {{ profile_form.email.label(class="form-label text-white-custom font-medium") }}
+                            {{ profile_form.email(class="form-control rounded-lg", value=current_user.email) }}
+                    </div>
+                    <div class="mb-4">
+                        {{ profile_form.avatar.label(class="form-label text-white-custom font-medium") }}
+                        {{ profile_form.avatar(class="form-control rounded-lg", type="file", accept="image/*") }}
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom rounded-lg px-6 py-2">更新设置</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 创建星空背景
+    document.addEventListener('DOMContentLoaded', function() {
+        const starryBg = document.getElementById('starry-bg');
+        const starsCount = 150;
+
+        for (let i = 0; i < starsCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+
+            // 随机位置
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+
+            // 随机大小
+            const size = Math.random() * 2 + 1;
+
+            // 随机闪烁延迟
+            const delay = Math.random() * 5;
+
+            // 随机透明度
+            const opacity = Math.random() * 0.5 + 0.1;
+
+            star.style.left = x + '%';
+            star.style.top = y + '%';
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            star.style.opacity = opacity;
+            star.style.animationDelay = delay + 's';
+
+            starryBg.appendChild(star);
+        }
+    });
+</script>
+{% endblock %}

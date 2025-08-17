@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+
+{% block title %}Tlias智能学习辅助系统 - 音乐{% endblock %}
+
+{% block extra_css %}
+<style>
+    .music-container {
+        background-color: #f5f5f0;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .search-bar {
+        background-color: white;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .song-list {
+        margin-top: 20px;
+    }
+    .song-item {
+        background-color: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    .song-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .player {
+        background-color: #88a0a8;
+        color: #f5f5f0;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .play-btn {
+        background-color: #b8c4c9;
+        color: #333;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .play-btn:hover {
+        background-color: #7a8c94;
+        color: white;
+    }
+    .quality-selector {
+        background-color: #b8c4c9;
+        color: #333;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 10px;
+        margin-left: 10px;
+    }
+    .search-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: white;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+    }
+    .search-suggestion-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .search-suggestion-item:hover {
+        background-color: #f5f5f0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-6">
+    <div class="music-container">
+        <h2 class="mb-4 text-gray-800">音乐中心</h2>
+
+        <!-- 搜索栏 -->
+        <div class="search-bar position-relative">
+            <div class="input-group">
+                <input type="text" id="search-input" class="form-control" placeholder="搜索歌曲...">
+                <button id="search-btn" class="btn btn-primary">搜索</button>
+                <select id="quality-selector" class="quality-selector">
+                    <option value="standard">标准音质</option>
+                    <option value="high">高品质</option>
+                    <option value="super">超高音质</option>
+                </select>
+            </div>
+            <div id="search-suggestions" class="search-suggestions"></div>
+        </div>
+
+        <!-- 搜索结果 -->
+        <div class="song-list">
+            <h3 class="text-lg font-semibold mb-3 text-gray-700">搜索结果</h3>
+            <div id="search-results"></div>
+        </div>
+
+        <!-- 播放器 -->
+        <div class="player">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 id="current-song-title" class="font-bold">未播放音乐</h3>
+                    <p id="current-song-artist" class="text-sm opacity-80">未知艺术家</p>
+                </div>
+                <div class="d-flex gap-3">
+                    <button id="prev-btn" class="play-btn">
+                        <i class="bi bi-step-backward"></i>
+                    </button>
+                    <button id="play-pause-btn" class="play-btn">
+                        <i class="bi bi-play"></i>
+                    </button>
+                    <button id="next-btn" class="play-btn">
+                        <i class="bi bi-step-forward"></i>
+                    </button>
+                </div>
+            </div>
+            <audio id="audio-player" controls style="width: 100%; margin-top: 15px;"></audio>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const searchResults = document.getElementById('search-results');
+        const audioPlayer = document.getElementById('audio-player');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const currentSongTitle = document.getElementById('current-song-title');
+        const currentSongArtist = document.getElementById('current-song-artist');
+        const qualitySelector = document.getElementById('quality-selector');
+
+        let playlist = [];
+        let currentSongIndex = -1;
+
+        // 搜索音乐
+        searchBtn.addEventListener('click', function() {
+            const keyword = searchInput.value.trim();
+            if (keyword) {
+                searchMusic(keyword);
+            }
+        });
+
+        // 按回车搜索
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const keyword = searchInput.value.trim();
+                if (keyword) {
+                    searchMusic(keyword);
+                    document.getElementById('search-suggestions').style.display = 'none';
+                }
+            }
+        });
+
+        // 输入时获取搜索建议
+        searchInput.addEventListener('input', function() {
+            const keyword = this.value.trim();
+            // 使用防抖，避免频繁请求
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
+                getSearchSuggestions(keyword);
+            }, 300);
+        });
+
+        // 点击页面其他地方关闭搜索建议
+        document.addEventListener('click', function(e) {
+            const searchBar = document.querySelector('.search-bar');
+            const suggestionsContainer = document.getElementById('search-suggestions');
+            if (!searchBar.contains(e.target)) {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+
+        // 播放/暂停按钮
+        playPauseBtn.addEventListener('click', function() {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playPauseBtn.innerHTML = '<i class="bi bi-pause"></i>';
+            } else {
+                audioPlayer.pause();
+                playPauseBtn.innerHTML = '<i class="bi bi-play"></i>';
+            }
+        });
+
+        // 上一首
+        prevBtn.addEventListener('click', function() {
+            if (playlist.length > 0) {
+                currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+                playSong(currentSongIndex);
+            }
+        });
+
+        // 下一首
+        nextBtn.addEventListener('click', function() {
+            if (playlist.length > 0) {
+                currentSongIndex = (currentSongIndex + 1) % playlist.length;
+                playSong(currentSongIndex);
+            }
+        });
+
+        // 音频结束时自动播放下一首
+        audioPlayer.addEventListener('ended', function() {
+            if (playlist.length > 0) {
+                currentSongIndex = (currentSongIndex + 1) % playlist.length;
+                playSong(currentSongIndex);
+            }
+        });
+
+        // 获取搜索建议
+        function getSearchSuggestions(keyword) {
+            if (keyword.length < 1) {
+                document.getElementById('search-suggestions').style.display = 'none';
+                return;
+            }
+
+            fetch(`/api/music/search?keyword=${encodeURIComponent(keyword)}`)    
+                .then(response => response.json())
+                .then(data => {
+                    const suggestionsContainer = document.getElementById('search-suggestions');
+                    if (data.error || !data.data || !data.data.lists || data.data.lists.length === 0) {
+                        suggestionsContainer.style.display = 'none';
+                        return;
+                    }
+
+                    // 显示搜索建议
+                    suggestionsContainer.innerHTML = '';
+                    data.data.lists.slice(0, 5).forEach(song => {
+                        const suggestionItem = document.createElement('div');
+                        suggestionItem.className = 'search-suggestion-item';
+                        suggestionItem.textContent = `${song.songname} - ${song.singername}`;
+                        suggestionItem.addEventListener('click', () => {
+                            searchInput.value = song.songname;
+                            suggestionsContainer.style.display = 'none';
+                            searchMusic(song.songname);
+                        });
+                        suggestionsContainer.appendChild(suggestionItem);
+                    });
+                    suggestionsContainer.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('获取搜索建议失败:', error);
+                });
+        }
+
+        // 搜索音乐函数
+        function searchMusic(keyword) {
+            fetch(`/api/music/search?keyword=${encodeURIComponent(keyword)}`)    
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        searchResults.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    } else if (data.data && data.data.lists) {
+                        playlist = data.data.lists;
+                        renderSearchResults(playlist);
+                    } else {
+                        searchResults.innerHTML = '<div class="alert alert-info">未找到相关歌曲</div>';
+                    }
+                })
+                .catch(error => {
+                    searchResults.innerHTML = `<div class="alert alert-danger">搜索失败: ${error.message}</div>`;
+                });
+        }
+
+        // 渲染搜索结果
+        function renderSearchResults(songs) {
+            if (songs.length === 0) {
+                searchResults.innerHTML = '<div class="alert alert-info">未找到相关歌曲</div>';
+                return;
+            }
+
+            let html = '';
+            songs.forEach((song, index) => {
+                html += `
+                <div class="song-item d-flex justify-content-between align-items-center" data-index="${index}">
+                    <div>
+                        <h4 class="font-bold">${song.songname}</h4>
+                        <p class="text-sm text-gray-600">${song.singername}</p>
+                    </div>
+                    <button class="play-btn" data-index="${index}">
+                        <i class="bi bi-play"></i>
+                    </button>
+                </div>
+                `;
+            });
+
+            searchResults.innerHTML = html;
+
+            // 为每首歌添加播放事件
+            document.querySelectorAll('.song-item .play-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    playSong(index);
+                });
+            });
+        }
+
+        // 播放歌曲
+        function playSong(index) {
+            if (index >= 0 && index < playlist.length) {
+                currentSongIndex = index;
+                const song = playlist[index];
+                const quality = qualitySelector.value;
+
+                // 获取播放地址
+                fetch(`/api/music/url?hash=${song.filehash}&quality=${quality}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert(data.error);
+                        } else if (data.url) {
+                            audioPlayer.src = data.url;
+                            audioPlayer.play();
+                            playPauseBtn.innerHTML = '<i class="bi bi-pause"></i>';
+                            currentSongTitle.textContent = song.songname;
+                            currentSongArtist.textContent = song.singername;
+                        }
+                    })
+                    .catch(error => {
+                        alert(`获取播放地址失败: ${error.message}`);
+                    });
+            }
+        }
+    });
+</script>
+{% endblock %}

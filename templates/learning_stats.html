@@ -1,0 +1,1027 @@
+{% extends 'base.html' %}
+
+{% block title %}Tlias智能学习辅助系统 - 学习统计{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 统一星空背景样式 */
+    .learning-stats-container {
+        position: relative;
+        min-height: 100vh;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* 响应式容器 */
+    .container-fluid {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+    
+    /* 星空背景 */
+    .starry-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
+        z-index: -1;
+        overflow: hidden;
+    }
+    .star {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        animation: twinkle 2s infinite ease-in-out;
+    }
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+    }
+
+    .learning-stats-title {
+        color: var(--text-color);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        word-wrap: break-word;
+    }
+
+    /* 深色模式卡片样式 */
+    .learning-stats-card {
+        background: rgba(26, 26, 46, 0.85);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(100, 115, 255, 0.3);
+        border-radius: 16px;
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        color: var(--text-color);
+    }
+
+    .learning-stats-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 
+            0 12px 48px rgba(100, 115, 255, 0.2),
+            0 0 0 1px rgba(100, 115, 255, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        border-color: rgba(100, 115, 255, 0.5);
+    }
+
+    .learning-stats-card .card-header {
+        background: linear-gradient(135deg, rgba(100, 115, 255, 0.2), rgba(150, 100, 255, 0.2));
+        border-bottom: 1px solid rgba(100, 115, 255, 0.3);
+        color: var(--text-color);
+        font-weight: 600;
+        border-radius: 16px 16px 0 0 !important;
+        padding: 1.5rem;
+    }
+
+    .learning-stats-card .card-title {
+        color: var(--text-color) !important;
+        font-weight: 600;
+    }
+
+    .learning-stats-card .card-text {
+        color: var(--text-color);
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+
+    .learning-stats-card .text-muted {
+        color: var(--text-color) !important;
+        opacity: 0.7;
+    }
+
+    /* 表格样式 */
+    .learning-stats-card .table {
+        color: var(--text-color);
+        opacity: 0.9;
+    }
+
+    .learning-stats-card .table th {
+        color: var(--text-color);
+        border-color: rgba(100, 115, 255, 0.3);
+        background: rgba(100, 115, 255, 0.1);
+        font-weight: 600;
+    }
+
+    .learning-stats-card .table td {
+        border-color: rgba(100, 115, 255, 0.2);
+    }
+
+    .learning-stats-card .table-hover tbody tr:hover {
+        background-color: rgba(100, 115, 255, 0.1);
+        color: var(--text-color);
+    }
+
+    /* 进度条样式 */
+    .progress {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        background: linear-gradient(135deg, #6473ff, #9664ff);
+        border-radius: 10px;
+        transition: width 0.6s ease;
+    }
+
+    /* 徽章样式 */
+    .learning-stats-card .badge {
+        font-weight: 500;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .badge.bg-success {
+        background: linear-gradient(135deg, #00d4aa, #00b894) !important;
+        color: #ffffff;
+    }
+
+    .badge.bg-warning {
+        background: linear-gradient(135deg, #ffa726, #ff9800) !important;
+        color: #ffffff;
+    }
+
+    .badge.bg-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2) !important;
+        color: #ffffff;
+    }
+
+    .badge.bg-light {
+        color: var(--text-color) !important;
+        background-color: rgba(100, 115, 255, 0.2) !important;
+    }
+
+    .badge.bg-info {
+        background: linear-gradient(135deg, #36d1dc, #5b86e5) !important;
+        color: #ffffff;
+    }
+
+    .badge.bg-secondary {
+        background: linear-gradient(135deg, #a8a8a8, #8e8e8e) !important;
+        color: #ffffff;
+    }
+
+    /* 文章卡片样式 */
+    .hover-card {
+        background: rgba(26, 26, 46, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(100, 115, 255, 0.2);
+        border-radius: 12px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        color: var(--text-color);
+        max-width: 100%;
+    }
+
+    .hover-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 
+            0 12px 40px rgba(100, 115, 255, 0.25),
+            0 0 0 1px rgba(100, 115, 255, 0.4);
+        border-color: rgba(100, 115, 255, 0.4);
+        background: rgba(26, 26, 46, 0.9);
+    }
+
+    .hover-card .card-title {
+        color: var(--text-color) !important;
+        font-weight: 600;
+    }
+
+    .hover-card .card-text {
+        color: var(--text-color);
+        opacity: 0.8;
+    }
+
+    .hover-card .text-muted {
+        color: var(--text-color) !important;
+        opacity: 0.6;
+    }
+
+    /* 按钮样式 */
+    .btn-outline-primary {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+        background: transparent;
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+    .btn-outline-primary:hover {
+        color: #ffffff;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-color: transparent;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(100, 115, 255, 0.3);
+    }
+
+    /* 标签样式 */
+    .badge.bg-light {
+        background: rgba(100, 115, 255, 0.2) !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid rgba(100, 115, 255, 0.3);
+        font-weight: 500;
+    }
+
+    /* 图表容器样式 */
+    #learningChart {
+        background: rgba(26, 26, 46, 0.5);
+        border-radius: 8px;
+        padding: 1rem;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    :root:not(.dark) #learningChart {
+        background: rgba(255, 255, 255, 0.9);
+    }
+    
+    #learningChart canvas {
+        max-width: 100% !important;
+        height: 100% !important;
+        background-color: transparent !important;
+    }
+
+    /* 强制深色模式下图表背景为白色 */
+    html.dark #learningChart canvas,
+    body.dark #learningChart canvas {
+        background-color: white !important;
+    }
+    /* 精选文章教程样式 */
+    .article-card {
+        background-color: rgba(26, 26, 46, 0.9);
+        transition: all 0.3s ease;
+    }
+    
+    .article-title {
+        text-align: left;
+        color: #ffffff;
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    }
+    
+    .article-summary {
+        text-align: left;
+        text-indent: 0;
+        color: #f5f5f5;
+        font-weight: 400;
+        text-shadow: 0 1px 1px rgba(0,0,0,0.6);
+    }
+    
+    .category-badge {
+        background-color: #6473ff;
+        color: #ffffff;
+    }
+    
+    .view-count, .article-author, .article-likes {
+        color: #cccccc;
+    }
+    
+    .tag-badge {
+        background-color: rgba(100, 115, 255, 0.2);
+        color: #ffffff;
+        border: 1px solid rgba(100, 115, 255, 0.4);
+    }
+    
+    /* 浅色模式下的精选文章教程样式 */
+    :root:not(.dark) .article-card {
+        background-color: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(100, 115, 255, 0.1);
+    }
+    
+    :root:not(.dark) .article-title {
+        color: var(--text-color);
+        text-shadow: none;
+    }
+    
+    :root:not(.dark) .article-summary {
+        color: var(--text-color);
+        opacity: 0.8;
+        text-shadow: none;
+    }
+    
+    :root:not(.dark) .category-badge {
+        background-color: var(--primary-color);
+        color: #ffffff;
+    }
+    
+    :root:not(.dark) .view-count,
+    :root:not(.dark) .article-author,
+    :root:not(.dark) .article-likes {
+        color: var(--text-color);
+        opacity: 0.7;
+    }
+    
+    :root:not(.dark) .tag-badge {
+        background-color: rgba(100, 115, 255, 0.1);
+        color: var(--primary-color);
+        border: 1px solid rgba(100, 115, 255, 0.2);
+    }
+    
+    :root:not(.dark) .no-articles {
+        color: var(--text-color);
+        opacity: 0.6;
+    }
+    
+    /* 分页样式 */
+    .pagination {
+        gap: 0.5rem;
+    }
+
+    .pagination .page-link {
+        border-radius: 8px;
+        border: 1px solid rgba(100, 115, 255, 0.3);
+        color: var(--primary-color);
+        background: rgba(26, 26, 46, 0.5);
+        transition: all 0.3s ease;
+        padding: 0.5rem 0.75rem;
+        font-weight: 500;
+    }
+
+    .pagination .page-link:hover {
+        background: rgba(100, 115, 255, 0.2);
+        border-color: rgba(100, 115, 255, 0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(100, 115, 255, 0.3);
+    }
+
+    .pagination .active .page-link {
+        background: linear-gradient(135deg, #6473ff, #9664ff);
+        border-color: rgba(100, 115, 255, 0.8);
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(100, 115, 255, 0.4);
+    }
+
+    .pagination .disabled .page-link {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.4);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* 浅色模式下的分页样式 */
+    :root:not(.dark) .pagination .page-link {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: rgba(100, 115, 255, 0.2);
+        color: var(--primary-color);
+    }
+
+    :root:not(.dark) .pagination .page-link:hover {
+        background: rgba(100, 115, 255, 0.1);
+        border-color: var(--primary-color);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+        .learning-stats-container {
+            padding: 1rem 0;
+        }
+        
+        .learning-stats-title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .learning-stats-card {
+            margin-bottom: 1rem;
+        }
+
+        .pagination .page-link {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.875rem;
+        }
+    }
+
+    /* 浅色模式覆盖 */
+    :root:not(.dark) .starry-bg {
+        background: #f8f9fa !important;
+    }
+    
+    :root:not(.dark) .star {
+        display: none;
+    }
+
+    /* 响应式布局 */
+    @media (max-width: 1200px) {
+        .container-fluid {
+            max-width: 100%;
+            padding: 0 10px;
+        }
+        .learning-stats-title {
+            font-size: 1.8rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .learning-stats-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .chart-container {
+            height: 300px;
+            margin: 1rem 0;
+        }
+        .row {
+            margin-left: 0;
+            margin-right: 0;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .learning-stats-title {
+            font-size: 1.3rem;
+        }
+        .chart-container {
+            height: 250px;
+            padding: 0.5rem;
+        }
+    }
+
+    :root:not(.dark) .learning-stats-title {
+        color: var(--text-color);
+        text-shadow: none;
+    }
+
+    :root:not(.dark) .learning-stats-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: rgba(100, 115, 255, 0.2);
+        color: var(--text-color);
+    }
+
+    :root:not(.dark) .learning-stats-card:hover {
+        border-color: rgba(100, 115, 255, 0.4);
+    }
+
+    :root:not(.dark) .learning-stats-card .card-header {
+        background: linear-gradient(135deg, rgba(100, 115, 255, 0.1), rgba(150, 100, 255, 0.1));
+        color: var(--text-color);
+    }
+
+    :root:not(.dark) .learning-stats-card .card-title {
+        color: var(--text-color) !important;
+    }
+
+    :root:not(.dark) .learning-stats-card .card-text {
+        color: var(--text-color);
+    }
+
+    :root:not(.dark) .hover-card {
+        background: rgba(255, 255, 255, 0.8);
+        border-color: rgba(100, 115, 255, 0.2);
+        color: var(--text-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="starry-bg" id="starry-bg"></div>
+<div class="learning-stats-container">
+    <div class="container-fluid px-0">
+        <div class="row align-items-center mb-4 mx-0">
+            <div class="col-auto">
+                <button class="btn btn-outline-primary" onclick="goBack()" title="返回上一页">
+                    <i class="bi bi-arrow-left me-1"></i>返回
+                </button>
+            </div>
+            <div class="col">
+                <h1 class="learning-stats-title text-center mb-0">
+                    <i class="bi bi-journal-text me-2"></i>
+                    文章教程中心
+                </h1>
+            </div>
+            <div class="col-auto" style="width: 80px;"></div> <!-- 为了保持标题居中的占位元素 -->
+        </div>
+        
+        <script>
+        function goBack() {
+            window.location.href = '{{ url_for("home_page") }}';
+        }
+        </script>
+
+        {% if current_user.is_authenticated %}
+        <div class="row mx-0">
+            <div class="col-md-4">
+                <div class="learning-stats-card card">
+                    <div class="card-header">总体进度</div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>完成率</span>
+                                <span>{{ overall_stats.completion_rate|int }}%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: {{ overall_stats.completion_rate }}%" aria-valuenow="{{ overall_stats.completion_rate }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <p class="card-text">已完成课程: <span class="badge bg-success">{{ overall_stats.completed_courses }}</span>/{{ overall_stats.total_courses }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="card-text">已完成资料: <span class="badge bg-success">{{ overall_stats.completed_materials }}</span>/{{ overall_stats.total_materials }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="card-text">总学习时间: <span class="badge bg-primary">{{ overall_stats.total_time_spent }}分钟</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="learning-stats-card card">
+                    <div class="card-header">最近学习活动</div>
+                    <div class="card-body">
+                        <div class="table-responsive" style="max-width: 100%; overflow-x: auto;">
+                            <table class="table table-hover" style="min-width: 400px;">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="min-width: 100px;">课程</th>
+                                        <th scope="col" style="min-width: 100px;">资料</th>
+                                        <th scope="col" style="min-width: 80px;">进度</th>
+                                        <th scope="col" style="min-width: 80px;">时间</th>
+                                        <th scope="col" style="min-width: 100px;">日期</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for activity in recent_activities %}
+                                    <tr>
+                                        <td><a href="{{ url_for('course_detail', course_id=activity.course_id) }}">{{ activity.course_name }}</a></td>
+                                        <td><a href="{{ url_for('material_detail', material_id=activity.material_id) }}">{{ activity.material_title }}</a></td>
+                                        <td><span class="badge {{ 'bg-success' if activity.completed else 'bg-warning' }}">{{ (activity.completion_rate)|int }}%</span></td>
+                                        <td>{{ activity.time_spent }}分钟</td>
+                                        <td>{{ activity.last_accessed.strftime('%Y-%m-%d') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+
+    <!-- 公共文章教程区域 -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="learning-stats-card card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-journal-text me-2"></i>
+                        精选文章教程
+                        <small class="text-muted ms-2">所有用户可见</small>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- 搜索和筛选区域 -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <form method="GET" action="{{ url_for('learning_stats') }}">
+                                <div class="input-group">
+                                    <input type="text" name="search" class="form-control" placeholder="搜索文章..." value="{{ search_query }}">
+                                    {% if category_filter %}
+                                    <input type="hidden" name="category" value="{{ category_filter }}">
+                                    {% endif %}
+                                    <button type="submit" class="btn btn-primary-custom">
+                                        <i class="bi bi-search"></i> 搜索
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-4">
+                            <form method="GET" action="{{ url_for('learning_stats') }}">
+                                {% if search_query %}
+                                <input type="hidden" name="search" value="{{ search_query }}">
+                                {% endif %}
+                                <select name="category" class="form-select" onchange="this.form.submit()">
+                                    <option value="">所有分类</option>
+                                    <option value="入门指南" {% if category_filter == '入门指南' %}selected{% endif %}>入门指南</option>
+                                    <option value="进阶技巧" {% if category_filter == '进阶技巧' %}selected{% endif %}>进阶技巧</option>
+                                    <option value="案例分析" {% if category_filter == '案例分析' %}selected{% endif %}>案例分析</option>
+                                    <option value="最佳实践" {% if category_filter == '最佳实践' %}selected{% endif %}>最佳实践</option>
+                                </select>
+                            </form>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('learning_stats') }}" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-arrow-clockwise"></i> 重置
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 文章总数信息 -->
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            共找到 {{ pagination.total }} 篇文章，当前显示第 {{ (pagination.page - 1) * pagination.per_page + 1 }}-{{ (pagination.page - 1) * pagination.per_page + public_articles|length }} 篇
+                        </small>
+                    </div>
+
+                    {% if public_articles %}
+                        <!-- 精选文章专区 -->
+<div class="mb-5">
+    <h5 class="text-white mb-3"><i class="bi bi-star-fill text-warning me-2"></i>精选文章教程</h5>
+    <div class="row g-3">
+        {% for article in public_articles if article.category == '精选' %}
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-3">
+            <div class="card h-100 border-0 shadow-sm hover-card article-card border-warning border-2">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-warning text-dark">{{ article.category }}</span>
+                            <small class="view-count">
+                                <i class="bi bi-eye me-1"></i>{{ article.view_count }}
+                            </small>
+                        </div>
+                        <h6 class="card-title mb-2 article-title">{{ article.title }}</h6>
+                        <p class="card-text small article-summary">{{ article.summary[:100] }}{% if article.summary|length > 100 %}...{% endif %}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <small class="article-author">
+                                <i class="bi bi-person me-1"></i>{{ article.author }}
+                            </small>
+                            <small class="article-likes">
+                                <i class="bi bi-star-fill text-warning me-1"></i>{{ article.like_count }}
+                            </small>
+                        </div>
+                        <div class="mt-3">
+                            {% for tag in article.tag_list[:3] %}
+                                <span class="badge tag-badge me-1">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <a href="{{ url_for('article_detail', article_id=article.id) }}" class="btn btn-warning btn-sm w-100">
+                            <i class="bi bi-book-open me-1"></i>阅读全文
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+<!-- 所有文章列表 -->
+<div class="row g-3">
+                        {% for article in public_articles %}
+                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-3">
+                            <div class="card h-100 border-0 shadow-sm hover-card article-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <span class="badge category-badge">{{ article.category }}</span>
+                                            <small class="view-count">
+                                                <i class="bi bi-eye me-1"></i>{{ article.view_count }}
+                                            </small>
+                                        </div>
+                                        <h6 class="card-title mb-2 article-title">{{ article.title }}</h6>
+                    <p class="card-text small article-summary">{{ article.summary[:100] }}{% if article.summary|length > 100 %}...{% endif %}</p>
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <small class="article-author">
+                                                <i class="bi bi-person me-1"></i>{{ article.author }}
+                                            </small>
+                                            <small class="article-likes">
+                                                <i class="bi bi-star-fill text-warning me-1"></i>{{ article.like_count }}
+                                            </small>
+                                        </div>
+                                        <div class="mt-3">
+                                            {% for tag in article.tag_list[:3] %}
+                                                <span class="badge tag-badge me-1">{{ tag }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-transparent border-0">
+                                        <a href="{{ url_for('article_detail', article_id=article.id) }}" class="btn btn-outline-primary btn-sm w-100">
+                                            <i class="bi bi-book-open me-1"></i>阅读全文
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- 分页控件 -->
+                        <nav aria-label="文章分页">
+                            <ul class="pagination justify-content-center mt-4">
+                                {% if pagination.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('learning_stats', page=pagination.prev_num, search=search_query, category=category_filter) }}" aria-label="上一页">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link" aria-hidden="true"><i class="bi bi-chevron-left"></i></span>
+                                </li>
+                                {% endif %}
+
+                                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                                    {% if page_num %}
+                                        {% if page_num != pagination.page %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('learning_stats', page=page_num, search=search_query, category=category_filter) }}">{{ page_num }}</a>
+                                        </li>
+                                        {% else %}
+                                        <li class="page-item active">
+                                            <span class="page-link bg-primary border-primary">{{ page_num }} <span class="sr-only">(当前)</span></span>
+                                        </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if pagination.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('learning_stats', page=pagination.next_num, search=search_query, category=category_filter) }}" aria-label="下一页">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link" aria-hidden="true"><i class="bi bi-chevron-right"></i></span>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+
+                    {% else %}
+                        <div class="text-center py-4 no-articles">
+                            <i class="bi bi-journal-x" style="font-size: 3rem; color: #cccccc;"></i>
+                            <p class="mt-3">
+                                {% if search_query or category_filter %}
+                                没有找到符合条件的文章，请尝试其他搜索条件。
+                                {% else %}
+                                暂无精选文章教程
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 学习趋势图表 -->
+    {% if current_user.is_authenticated %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="learning-stats-card card">
+                <div class="card-header">学习趋势</div>
+                <div class="card-body">
+                    <canvas id="learningChart" style="width: 100%; height: 400px; display: block;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8"></script>
+<script>
+    console.log('Chart.js script loaded (version 4.4.8)');
+    let learningChartInstance = null; // 图表实例引用
+    
+    // 添加窗口卸载时的清理逻辑
+    window.addEventListener('beforeunload', function() {
+        if (learningChartInstance) {
+            console.log('Cleaning up chart instance on page unload:', learningChartInstance.id);
+            learningChartInstance.destroy();
+            learningChartInstance = null;
+        }
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOMContentLoaded event triggered');
+        
+        // 包裹整个初始化过程在try-catch中
+        try {
+            initializeChart();
+        } catch (error) {
+            console.error('Top-level chart initialization error:', error);
+            console.error('Error stack:', error.stack);
+        }
+    });
+    
+    function initializeChart() {
+        // 检查Canvas元素
+        const canvas = document.getElementById('learningChart');
+        console.log('Canvas element:', canvas);
+        
+        if (!canvas) {
+            console.error('Critical error: Canvas element not found');
+            return;
+        }
+        
+        // 强制重置Canvas状态
+        // 使用getBoundingClientRect获取实际可见尺寸
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        console.log(`[${new Date().toISOString()}] Canvas reset to visible dimensions:`, Math.round(rect.width), 'x', Math.round(rect.height));
+        
+        // 验证Canvas尺寸并检查父容器可见性
+        if (canvas.width === 0 || canvas.height === 0) {
+            console.error(`[${new Date().toISOString()}] Canvas has zero dimensions - analyzing container hierarchy:`);
+            
+            // 递归检查所有父容器
+            let element = canvas;
+            let depth = 0;
+            while (element && depth < 5) {
+                const style = getComputedStyle(element);
+                console.log(`[${new Date().toISOString()}] Container #${depth}:`, element.tagName, {
+                    display: style.display,
+                    visibility: style.visibility,
+                    width: style.width,
+                    height: style.height,
+                    opacity: style.opacity
+                });
+                element = element.parentElement;
+                depth++;
+            }
+            
+            // 设置强制后备尺寸
+            canvas.width = 800;
+            canvas.height = 400;
+            console.log(`[${new Date().toISOString()}] Forced fallback dimensions:`, canvas.width, 'x', canvas.height);
+        }
+        
+        // 检查Canvas可见性
+        if (!canvas.offsetParent) {
+            console.error(`[${new Date().toISOString()}] Canvas is not visible (offsetParent is null) - cannot render chart`);
+            // 尝试强制显示Canvas
+            canvas.style.display = 'block';
+            canvas.style.visibility = 'visible';
+            canvas.style.opacity = '1';
+            console.log(`[${new Date().toISOString()}] Forced Canvas visibility styles`);
+        }
+        
+        // 检查Chart.js加载状态
+        if (typeof Chart === 'undefined') {
+            console.error('Critical error: Chart.js not loaded');
+            return;
+        }
+        
+        // 销毁所有关联当前canvas的图表实例
+        if (Chart.instances) {
+            console.log('Current Chart instances count:', Chart.instances.size);
+            // 使用Array.from确保迭代安全
+            const instances = Array.from(Chart.instances.values());
+            for (const instance of instances) {
+                if (instance.canvas === canvas) {
+                    console.log(`[${new Date().toISOString()}] Destroying chart instance:`, instance.id);
+                    instance.destroy();
+                    console.log(`[${new Date().toISOString()}] Chart instance ${instance.id} destroyed`);
+                }
+            }
+            console.log('Chart instances count after cleanup:', Chart.instances.size);
+        }
+        
+        // 确保局部实例引用也被销毁
+        if (learningChartInstance) {
+            console.log('Destroying local chart instance:', learningChartInstance.id);
+            learningChartInstance.destroy();
+            learningChartInstance = null;
+            console.log('Local chart instance destroyed');
+        }
+        
+        try {
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                throw new Error('Failed to get canvas context');
+            }
+            
+            const chartConfig = {
+                type: 'bar',
+                data: {
+                    labels: ['2025-08-01', '2025-08-02', '2025-08-03', '2025-08-04', '2025-08-05'],
+                    datasets: [{
+                        label: '学习时间(分钟)',
+                        data: [60, 90, 45, 120, 75],
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                    }]
+                },
+                options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                animation: { duration: 0 },
+                // 禁用所有交互和动画以防止无限循环
+                interaction: { intersect: false, mode: 'nearest' },
+                plugins: { legend: { display: true }, tooltip: { enabled: false } }
+            }
+            };
+            
+            // 创建新图表实例
+            learningChartInstance = new Chart(ctx, chartConfig);
+            console.log('New chart instance created with ID:', learningChartInstance.id);
+            console.log('Chart instance details:', learningChartInstance);
+            
+            // 验证实例是否被正确添加到Chart.instances
+            console.log('Chart instances after creation:', Chart.instances.size);
+        } catch (error) {
+            console.error('Chart initialization error:', error);
+            console.error('Error stack:', error.stack);
+            // 错误恢复
+            learningChartInstance = null;
+            // 重置Canvas
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}
+
+<script>
+    // 创建星空背景
+    document.addEventListener('DOMContentLoaded', function() {
+        const starryBg = document.getElementById('starry-bg');
+        const starsCount = 150;
+
+        for (let i = 0; i < starsCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+
+            // 随机位置
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+
+            // 随机大小
+            const size = Math.random() * 2 + 1;
+
+            // 随机闪烁延迟
+            const delay = Math.random() * 5;
+
+            // 随机透明度
+            const opacity = Math.random() * 0.5 + 0.1;
+
+            star.style.left = x + '%';
+            star.style.top = y + '%';
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            star.style.opacity = opacity;
+            star.style.animationDelay = delay + 's';
+
+            starryBg.appendChild(star);
+        }
+    });
+</script>
+<!-- 已移除重复的图表初始化脚本 -->
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->
+            <!-- 已移除重复的图表初始化代码 -->

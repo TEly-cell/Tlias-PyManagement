@@ -1,0 +1,366 @@
+{% extends 'base.html' %}
+
+{% block title %}Tlias智能学习辅助系统 - 智能推荐{% endblock %}
+
+{% block extra_js %}
+<script>
+// 收藏功能实现
+document.addEventListener('DOMContentLoaded', function() {
+    const favoriteButtons = document.querySelectorAll('.favorite-btn');
+    favoriteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const materialId = this.getAttribute('data-material-id');
+            const icon = this.querySelector('i');
+            const isFavorited = icon.classList.contains('bi-star-fill');
+
+            // 切换图标状态
+            if (isFavorited) {
+                icon.classList.remove('bi-star-fill');
+                icon.classList.add('bi-star');
+                this.classList.remove('btn-primary');
+                this.classList.add('btn-outline-secondary');
+            } else {
+                icon.classList.remove('bi-star');
+                icon.classList.add('bi-star-fill');
+                this.classList.remove('btn-outline-secondary');
+                this.classList.add('btn-primary');
+            }
+
+            // 这里可以添加AJAX请求来保存收藏状态
+            console.log('切换收藏状态: 资料ID=' + materialId + ', 收藏=' + !isFavorited);
+            fetch('/api/favorite/' + materialId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrf_token')
+                },
+                body: JSON.stringify({ favorite: !isFavorited })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    // 恢复图标状态
+                    if (isFavorited) {
+                        icon.classList.remove('bi-star');
+                        icon.classList.add('bi-star-fill');
+                        button.classList.remove('btn-outline-secondary');
+                        button.classList.add('btn-primary');
+                    } else {
+                        icon.classList.remove('bi-star-fill');
+                        icon.classList.add('bi-star');
+                        button.classList.remove('btn-primary');
+                        button.classList.add('btn-outline-secondary');
+                    }
+                    alert('操作失败，请重试');
+                }
+            })
+            .catch(error => {
+                console.error('收藏操作失败:', error);
+                // 恢复图标状态
+                if (isFavorited) {
+                    icon.classList.remove('bi-star');
+                    icon.classList.add('bi-star-fill');
+                    button.classList.remove('btn-outline-secondary');
+                    button.classList.add('btn-primary');
+                } else {
+                    icon.classList.remove('bi-star-fill');
+                    icon.classList.add('bi-star');
+                    button.classList.remove('btn-primary');
+                    button.classList.add('btn-outline-secondary');
+                }
+                alert('网络错误，请重试');
+            });
+        });
+    });
+
+    // 获取CSRF Token的辅助函数
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        /* 浅色模式变量 */
+        --light-bg: #f8fafc;
+        --light-card-bg: rgba(255, 255, 255, 0.95);
+        --light-text-primary: #1a1a2e;
+        --light-text-secondary: #6b7280;
+        --light-border: rgba(229, 231, 235, 0.8);
+        --light-border-hover: rgba(209, 213, 219, 0.9);
+        --light-shadow: rgba(0, 0, 0, 0.1);
+        --light-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+        
+        /* 深色模式变量 */
+        --dark-bg: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
+        --dark-card-bg: rgba(10, 10, 26, 0.7);
+        --dark-text-primary: #ffffff;
+        --dark-text-secondary: #b0b0ff;
+        --dark-border: rgba(100, 115, 255, 0.2);
+        --dark-border-hover: rgba(100, 115, 255, 0.5);
+        --dark-shadow: rgba(0, 0, 0, 0.3);
+        --dark-gradient: linear-gradient(135deg, #6473ff, #9664ff);
+        
+        /* 默认使用深色模式 */
+        --bg-color: var(--dark-bg);
+        --card-bg: var(--dark-card-bg);
+        --text-primary: var(--dark-text-primary);
+        --text-secondary: var(--dark-text-secondary);
+        --border-color: var(--dark-border);
+        --border-hover: var(--dark-border-hover);
+        --shadow-color: var(--dark-shadow);
+        --gradient-color: var(--dark-gradient);
+    }
+
+    /* 深色模式 */
+    .dark {
+        --bg-color: var(--dark-bg);
+        --card-bg: var(--dark-card-bg);
+        --text-primary: var(--dark-text-primary);
+        --text-secondary: var(--dark-text-secondary);
+        --border-color: var(--dark-border);
+        --border-hover: var(--dark-border-hover);
+        --shadow-color: var(--dark-shadow);
+        --gradient-color: var(--dark-gradient);
+    }
+
+    /* 浅色模式 */
+    :root:not(.dark) {
+        --bg-color: var(--light-bg);
+        --card-bg: var(--light-card-bg);
+        --text-primary: var(--light-text-primary);
+        --text-secondary: var(--light-text-secondary);
+        --border-color: var(--light-border);
+        --border-hover: var(--light-border-hover);
+        --shadow-color: var(--light-shadow);
+        --gradient-color: var(--light-gradient);
+    }
+
+    /* 动画定义 */
+    .animate-fade-in-up {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in-left {
+        opacity: 0;
+        transform: translateX(-30px);
+        animation: fadeInLeft 0.6s ease-out forwards;
+    }
+    
+    @keyframes fadeInLeft {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .animate-fade-in-right {
+        opacity: 0;
+        transform: translateX(30px);
+        animation: fadeInRight 0.6s ease-out forwards;
+    }
+    
+    @keyframes fadeInRight {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .animate-delay-1 { animation-delay: 0.2s; }
+    .animate-delay-2 { animation-delay: 0.4s; }
+    .animate-delay-3 { animation-delay: 0.6s; }
+    .animate-delay-4 { animation-delay: 0.8s; }
+
+    body {
+        background: var(--bg-color);
+        transition: background 0.3s ease;
+    }
+
+    .recommendations-container {
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .recommendations-title {
+        color: var(--text-primary);
+        transition: color 0.3s ease;
+    }
+
+    .recommendations-subtitle {
+        color: var(--text-secondary);
+        transition: color 0.3s ease;
+    }
+
+    .recommendations-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px var(--shadow-color);
+        transition: all 0.3s ease;
+    }
+
+    .recommendations-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px var(--shadow-color), 0 0 0 1px rgba(100, 115, 255, 0.1);
+        border-color: var(--border-hover);
+    }
+
+    .recommendations-card .card-header {
+        background: rgba(255, 255, 255, 0.15);
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+
+    :root:not(.dark) .recommendations-card .card-header {
+        background: rgba(102, 126, 234, 0.1);
+    }
+
+    .recommendations-card .card-title {
+        color: var(--text-primary);
+        transition: color 0.3s ease;
+    }
+
+    .recommendations-card .card-subtitle {
+        color: var(--text-secondary);
+        transition: color 0.3s ease;
+    }
+
+    .recommendations-card .card-text {
+        color: var(--text-secondary);
+        transition: color 0.3s ease;
+    }
+
+    .recommendations-card .badge {
+        color: var(--text-primary);
+        background: var(--gradient-color);
+    }
+
+    .form-label {
+        color: var(--text-primary);
+        transition: color 0.3s ease;
+    }
+
+    .form-select, .form-control {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+
+    .form-select:focus, .form-control:focus {
+        background: var(--card-bg);
+        border-color: var(--border-hover);
+        box-shadow: 0 0 0 0.2rem rgba(100, 115, 255, 0.25);
+    }
+
+    .btn-primary {
+        background: var(--gradient-color);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px var(--shadow-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container recommendations-container">
+    <h1 class="text-center mb-2 recommendations-title animate-fade-in-up">个性化推荐</h1>
+    <p class="text-center mb-4 recommendations-subtitle animate-fade-in-up animate-delay-1">根据您的学习历史和偏好为您推荐</p>
+    
+    <form method="GET" action="{{ url_for('recommendations') }}" class="mb-4 animate-fade-in-up animate-delay-2">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="category" class="form-label">分类筛选</label>
+                <select name="category" id="category" class="form-select">
+                    <option value="">全部分类</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}" {% if request.args.get('category') == category %}selected{% endif %}>{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="difficulty" class="form-label">难度等级</label>
+                <select name="difficulty" id="difficulty" class="form-select">
+                    <option value="">全部难度</option>
+                    <option value="初级" {% if request.args.get('difficulty') == '初级' %}selected{% endif %}>初级</option>
+                    <option value="中级" {% if request.args.get('difficulty') == '中级' %}selected{% endif %}>中级</option>
+                    <option value="高级" {% if request.args.get('difficulty') == '高级' %}selected{% endif %}>高级</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="type" class="form-label">内容类型</label>
+                <select name="type" id="type" class="form-select">
+                    <option value="">全部类型</option>
+                    <option value="course" {% if request.args.get('type') == 'course' %}selected{% endif %}>课程</option>
+                    <option value="material" {% if request.args.get('type') == 'material' %}selected{% endif %}>资料</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label>&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block w-100">筛选</button>
+            </div>
+        </div>
+    </form>
+    
+    {% if recommendations %}
+        <div class="row">
+            {% for item in recommendations %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card recommendations-card animate-fade-in-up" style="animation-delay: {{ 0.8 + loop.index * 0.2 }}s">
+                        <div class="card-header">
+                            <h5 class="card-title mb-1">{{ item.title }}</h5>
+                            <h6 class="card-subtitle mb-2">{{ item.subtitle or item.description[:50] + '...' }}</h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ item.description }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-primary me-1">{{ item.category }}</span>
+                                    <span class="badge bg-secondary me-1">{{ item.difficulty }}</span>
+                                    <span class="badge bg-info">{{ item.type }}</span>
+                                </div>
+                                <a href="{{ url_for(item.type, id=item.id) }}" class="btn btn-primary btn-sm">查看详情</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center animate-fade-in-up animate-delay-3">
+            <p class="text-muted">暂无推荐内容，请继续学习以获取更精准的推荐。</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}讨论区{% endblock %}
+
+{% block extra_css %}
+<style>
+    .starry-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #0a0a1a;
+        z-index: -1;
+        overflow: hidden;
+    }
+    .star {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        animation: twinkle 2s infinite ease-in-out;
+    }
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+    }
+    .discussion-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+    .discussion-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 35px rgba(100, 115, 255, 0.4), 0 0 0 1px rgba(100, 115, 255, 0.1);
+        border-color: rgba(100, 115, 255, 0.5);
+    }
+    /* 星空背景下的文字颜色 */
+    .text-white-custom {
+        color: #e0e0e0;
+    }
+    .text-gray-custom {
+        color: #b0b0b0;
+    }
+    .text-muted-custom {
+        color: #999999;
+    }
+    .text-light-custom {
+        color: #c8c8c8;
+    }
+    .btn-primary {
+        background: rgba(100, 115, 255, 0.8);
+        border: 1px solid rgba(100, 115, 255, 0.3);
+        backdrop-filter: blur(5px);
+    }
+    .btn-primary:hover {
+        background: rgba(100, 115, 255, 0.9);
+        border-color: rgba(100, 115, 255, 0.5);
+    }
+
+    /* 浅色模式样式 */
+    :root:not(.dark) .starry-bg {
+        background: #ffffff !important;
+    }
+    
+    :root:not(.dark) .star {
+        display: none;
+    }
+    
+    :root:not(.dark) .discussion-card {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    :root:not(.dark) .discussion-card:hover {
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(100, 115, 255, 0.2);
+        border-color: rgba(100, 115, 255, 0.4);
+    }
+    
+    :root:not(.dark) .text-white-custom {
+        color: #000000;
+    }
+    
+    :root:not(.dark) .text-gray-custom {
+        color: #333333;
+    }
+    
+    :root:not(.dark) .text-muted-custom {
+        color: #555555;
+    }
+    
+    :root:not(.dark) .text-light-custom {
+        color: #222222;
+    }
+    
+    :root:not(.dark) .btn-primary {
+        background: rgba(100, 115, 255, 0.8);
+        border: 1px solid rgba(100, 115, 255, 0.3);
+        color: #ffffff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="starry-bg" id="starry-bg"></div>
+
+<div class="container py-5 animate-fade-in">
+    <div class="row">
+    <div class="col-md-8">
+        <h1 class="mb-4 animate-fade-in-up">讨论区</h1>
+        <a href="{{ url_for('create_discussion') }}" class="btn btn-primary mb-4 btn-animate hover-lift">
+            <i class="bi bi-plus-circle"></i> 创建新主题
+        </a>
+
+        {% if threads %}
+        <div class="list-group">
+            {% for thread in threads %}
+            <a href="{{ url_for('discussion_thread', thread_id=thread.id) }}" class="text-decoration-none d-block">
+                <div class="discussion-card p-4 mb-3 card-hover">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 text-white-custom">{{ thread.title }}</h5>
+                    <small class="text-light-custom">{{ thread.updated_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                    <p class="mb-1 text-light-custom text-truncate" style="max-width: 100%;">
+                        {{ thread.content | striptags | truncate(100) }}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted-custom"><i class="bi bi-person-circle"></i> {{ thread.user.username }}</small>
+                        <span class="badge bg-gradient-to-r from-purple-500 to-indigo-500 text-white">{{ thread.replies | length }} 回复</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="discussion-card p-4 text-center animate-fade-in-up">
+            <i class="bi bi-chat-dots text-4xl mb-3 text-purple-400"></i>
+            <p class="text-light-custom">暂无讨论主题，<a href="{{ url_for('create_discussion') }}" class="text-purple-400">创建第一个主题</a>吧！</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <div class="discussion-card p-4 animate-fade-in-up animate-delay-1">
+            <h5 class="card-title mb-3 text-white-custom"><i class="bi bi-info-circle text-purple-400 me-2"></i> 讨论区说明</h5>
+            <p class="text-light-custom">
+                欢迎来到讨论区！这里是学习交流的平台，您可以分享学习心得、提问问题、解答疑惑。
+            </p>
+            <ul class="list-group list-group-flush mt-3">
+                <li class="list-group-item bg-transparent text-light-custom"><i class="bi bi-check-circle text-success"></i> 遵守社区规范</li>
+                <li class="list-group-item bg-transparent text-light-custom"><i class="bi bi-check-circle text-success"></i> 尊重他人观点</li>
+                <li class="list-group-item bg-transparent text-light-custom"><i class="bi bi-check-circle text-success"></i> 分享有价值的内容</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 创建星空背景
+    document.addEventListener('DOMContentLoaded', function() {
+        const starryBg = document.getElementById('starry-bg');
+        const starsCount = 150;
+
+        for (let i = 0; i < starsCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+
+            // 随机位置
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+
+            // 随机大小
+            const size = Math.random() * 2 + 1;
+
+            // 随机闪烁延迟
+            const delay = Math.random() * 5;
+
+            // 随机透明度
+            const opacity = Math.random() * 0.5 + 0.1;
+
+            star.style.left = x + '%';
+            star.style.top = y + '%';
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            star.style.opacity = opacity;
+            star.style.animationDelay = delay + 's';
+
+            starryBg.appendChild(star);
+        }
+    });
+</script>
+{% endblock %}

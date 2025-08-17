@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}Tlias智能学习辅助系统 - 游戏中心{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        /* 浅色模式变量 */
+        --light-bg: #f8fafc;
+        --light-card-bg: rgba(255, 255, 255, 0.95);
+        --light-text-primary: #000000;
+        --light-text-secondary: #6b7280;
+        --light-border: rgba(229, 231, 235, 0.8);
+        --light-shadow: rgba(0, 0, 0, 0.1);
+        
+        /* 深色模式变量 */
+        --dark-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        --dark-card-bg: rgba(255, 255, 255, 0.1);
+        --dark-text-primary: #ffffff;
+        --dark-text-secondary: rgba(255, 255, 255, 0.8);
+        --dark-border: rgba(255, 255, 255, 0.2);
+        --dark-shadow: rgba(0, 0, 0, 0.3);
+        
+        /* 默认使用深色模式 */
+        --bg-color: var(--dark-bg);
+        --card-bg: var(--dark-card-bg);
+        --text-primary: var(--dark-text-primary);
+        --text-secondary: var(--dark-text-secondary);
+        --border-color: var(--dark-border);
+        --shadow-color: var(--dark-shadow);
+    }
+
+    /* 深色模式 */
+    .dark {
+        --bg-color: var(--dark-bg);
+        --card-bg: var(--dark-card-bg);
+        --text-primary: var(--dark-text-primary);
+        --text-secondary: var(--dark-text-secondary);
+        --border-color: var(--dark-border);
+        --shadow-color: var(--dark-shadow);
+    }
+
+    /* 浅色模式 */
+    :root:not(.dark) {
+        --bg-color: var(--light-bg);
+        --card-bg: var(--light-card-bg);
+        --text-primary: var(--light-text-primary);
+        --text-secondary: var(--light-text-secondary);
+        --border-color: var(--light-border);
+        --shadow-color: var(--light-shadow);
+    }
+
+    body {
+        background: var(--bg-color);
+        transition: background 0.3s ease;
+    }
+
+    .starry-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--bg-color);
+        z-index: -1;
+        overflow: hidden;
+    }
+    
+    :root:not(.dark) .starry-bg {
+        background: var(--light-bg);
+    }
+
+    .star {
+        position: absolute;
+        background: var(--text-primary);
+        border-radius: 50%;
+        animation: twinkle 2s infinite alternate;
+    }
+    
+    :root:not(.dark) .star {
+        background: #000000;
+    }
+
+    @keyframes twinkle {
+        0% { opacity: 0.3; }
+        100% { opacity: 1; }
+    }
+
+    .games-container {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 8px 32px var(--shadow-color);
+    }
+    .game-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(5px);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    .game-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px var(--shadow-color);
+    }
+    .game-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #4f46e5;
+    }
+    .game-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+    .game-description {
+        color: var(--text-secondary);
+        margin-bottom: 15px;
+    }
+    .play-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .play-btn:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        transform: scale(1.05);
+    }
+    .game-frame {
+        width: 100%;
+        height: 500px;
+        border: none;
+        border-radius: 8px;
+        background: var(--card-bg);
+    }
+    .text-gray-800 {
+        color: var(--text-primary) !important;
+    }
+    .btn-secondary {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        backdrop-filter: blur(5px);
+    }
+    .btn-secondary:hover {
+        background: var(--border-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="starry-bg" id="starry-bg"></div>
+<div class="container mt-6">
+    <div class="games-container">
+        <h2 class="mb-6 text-gray-800">游戏中心</h2>
+
+        {% if current_game %}
+        <!-- 游戏游玩区域 -->
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-3">{{ current_game.title }}</h3>
+            <div class="game-content">
+                <iframe class="game-frame" src="{{ url_for('game', game_name=current_game.name) }}"></iframe>
+            </div>
+            <button onclick="window.location.href='{{ url_for('games') }}'" class="mt-3 btn btn-secondary">返回游戏列表</button>
+        </div>
+        {% else %}
+        <!-- 游戏列表 -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="game-card">
+                    <div class="game-icon">
+                        <i class="bi bi-snake"></i>
+                    </div>
+                    <h3 class="game-title">贪吃蛇</h3>
+                    <p class="game-description">经典的贪吃蛇游戏，控制蛇头吃食物，让蛇变得更长。</p>
+                    <a href="{{ url_for('game', game_name='snake') }}" class="play-btn">开始游戏</a>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="game-card">
+                    <div class="game-icon">
+                        <i class="bi bi-cube"></i>
+                    </div>
+                    <h3 class="game-title">消消乐</h3>
+                    <p class="game-description">交换相邻的方块，匹配三个或更多相同的方块进行消除。</p>
+                    <a href="{{ url_for('game', game_name='match3') }}" class="play-btn">开始游戏</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 创建星空背景
+    document.addEventListener('DOMContentLoaded', function() {
+        const starryBg = document.getElementById('starry-bg');
+        const starsCount = 150;
+
+        for (let i = 0; i < starsCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+
+            // 随机位置
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+
+            // 随机大小
+            const size = Math.random() * 2 + 1;
+
+            // 随机闪烁延迟
+            const delay = Math.random() * 5;
+
+            // 随机透明度
+            const opacity = Math.random() * 0.5 + 0.1;
+
+            star.style.left = x + '%';
+            star.style.top = y + '%';
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            star.style.opacity = opacity;
+            star.style.animationDelay = delay + 's';
+
+            starryBg.appendChild(star);
+        }
+    });
+</script>
+{% endblock %}

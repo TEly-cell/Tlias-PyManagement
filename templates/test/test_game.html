@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消消乐游戏测试</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #game-container {
+            margin: 0 auto;
+            width: 400px;
+            height: 400px;
+            border: 2px solid #333;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #debug-info {
+            text-align: left;
+            margin: 20px auto;
+            width: 600px;
+            height: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>消消乐游戏测试</h1>
+    <div id="game-container">
+        <div id="game-grid" style="display: grid;"></div>
+    </div>
+    <div>
+        <button id="initialize-btn">初始化游戏</button>
+        <button id="start-btn">开始游戏</button>
+        <button id="reset-btn">重置游戏</button>
+    </div>
+    <div id="debug-info"></div>
+
+    <script src="/static/js/match3_v2.js"></script>
+    <script>
+        // 重定向console.log到debug-info元素
+        const originalConsoleLog = console.log;
+        const debugInfo = document.getElementById('debug-info');
+
+        console.log = function(message) {
+            originalConsoleLog.apply(console, arguments);
+            if (typeof message === 'object') {
+                message = JSON.stringify(message, null, 2);
+            }
+            debugInfo.textContent += message + '\n';
+            debugInfo.scrollTop = debugInfo.scrollHeight;
+        };
+
+        // 按钮事件
+        document.getElementById('initialize-btn').addEventListener('click', function() {
+            console.log('点击初始化游戏按钮...');
+            if (window.initializeMatch3Game) {
+                window.initializeMatch3Game(true);
+            } else {
+                console.error('initializeMatch3Game函数未定义');
+            }
+        });
+
+        document.getElementById('start-btn').addEventListener('click', function() {
+            console.log('点击开始游戏按钮...');
+            if (window.match3Game && match3Game.initGame) {
+                match3Game.initGame();
+            } else {
+                console.error('游戏未初始化或initGame函数未定义');
+            }
+        });
+
+        document.getElementById('reset-btn').addEventListener('click', function() {
+            console.log('点击重置游戏按钮...');
+            if (window.match3Game && match3Game.resetGame) {
+                match3Game.resetGame();
+            } else {
+                console.error('游戏未初始化或resetGame函数未定义');
+            }
+        });
+    </script>
+        <div id="debug-info">
+            <h3>调试信息</h3>
+            <div id="login-status">登录状态: 未测试</div>
+            <div id="game-status">游戏状态: 未创建</div>
+        </div>
+
+        <div id="control-buttons">
+            <button id="test-login">测试登录状态</button>
+            <button id="test-create-game">创建游戏</button>
+            <button id="init-game">初始化游戏</button>
+            <button id="start-game">开始游戏</button>
+            <button id="reset-game">重置游戏</button>
+        </div>
+
+        <script src="/static/js/match3_v2.js"></script>
+        <script src="/static/js/test_api.js"></script>
+    </body>
+</html>
